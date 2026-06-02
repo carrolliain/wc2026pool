@@ -1,4 +1,4 @@
-const http = require("http");
+﻿const http = require("http");
 const fs = require("fs/promises");
 const path = require("path");
 const crypto = require("crypto");
@@ -9,8 +9,7 @@ const ROOT = __dirname;
 const STORE_FILE = path.join(ROOT, "pools.json");
 const ADMIN_PASSWORD = process.env.WORLDCUP_ADMIN_PASSWORD || "worldcup2026";
 const TOKEN_SECRET = process.env.WORLDCUP_TOKEN_SECRET || crypto.createHash("sha256").update(ADMIN_PASSWORD).digest("hex");
-const WORLDCUP_API_KEY = process.env.WORLDCUP_API_KEY || "";
-const WORLDCUP_API_BASE = process.env.WORLDCUP_API_BASE || "https://api.worldcupapi.com";
+const FREE_API_BASE = process.env.WORLDCUP_FREE_API_BASE || "https://worldcup26.ir";
 let liveCache = { fetchedAt: 0, payload: null };
 
 function sendJson(res, status, payload) {
@@ -105,41 +104,79 @@ async function handleApi(req, res, url) {
 }
 
 async function getWorldCupLiveData() {
-  if (!WORLDCUP_API_KEY) {
-    return {
-      configured: false,
-      fetchedAt: null,
-      fixtures: [],
-      liveScores: [],
-      message: "Set WORLDCUP_API_KEY on the server to enable automatic fixtures and live scores."
-    };
-  }
-
   if (liveCache.payload && Date.now() - liveCache.fetchedAt < 30000) return liveCache.payload;
 
-  const [fixtures, liveScores] = await Promise.all([
-    fetchWorldCupEndpoint("/fixtures"),
-    fetchWorldCupEndpoint("/livescores")
+  const [gamesPayload, teamsPayload] = await Promise.all([
+    fetchFreeEndpoint("/get/games"),
+    fetchFreeEndpoint("/get/teams")
   ]);
+  const normalized = normalizeFreeData(gamesPayload, teamsPayload);
 
   liveCache = {
     fetchedAt: Date.now(),
     payload: {
       configured: true,
+      provider: "worldcup26.ir",
       fetchedAt: new Date().toISOString(),
-      fixtures,
-      liveScores
+      fixtures: normalized.fixtures,
+      liveScores: normalized.liveScores
     }
   };
   return liveCache.payload;
 }
 
-async function fetchWorldCupEndpoint(endpoint) {
-  const url = new URL(endpoint, WORLDCUP_API_BASE);
-  url.searchParams.set("key", WORLDCUP_API_KEY);
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`World Cup API failed: ${response.status}`);
+async function fetchFreeEndpoint(endpoint) {
+  const response = await fetch(new URL(endpoint, FREE_API_BASE));
+  if (!response.ok) throw new Error(`Free World Cup feed failed: ${response.status}`);
   return response.json();
+}
+
+function unwrapList(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.games)) return payload.games;
+  if (Array.isArray(payload?.matches)) return payload.matches;
+  if (Array.isArray(payload?.teams)) return payload.teams;
+  return [];
+}
+
+function teamName(team) {
+  return team?.name_en || team?.name || team?.team_name || team?.country || "";
+}
+
+function toNumber(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function normalizeFreeData(gamesPayload, teamsPayload) {
+  const teams = unwrapList(teamsPayload);
+  const teamById = Object.fromEntries(teams.map(team => [String(team.id || team.team_id), team]));
+
+  const fixtures = unwrapList(gamesPayload);
+  const liveScores = fixtures
+    .map(game => {
+      const homeTeam = teamById[String(game.home_team_id)] || game.home_team || game.home || {};
+      const awayTeam = teamById[String(game.away_team_id)] || game.away_team || game.away || {};
+      const homeScore = toNumber(game.home_score ?? game.homeScore ?? game.score_home);
+      const awayScore = toNumber(game.away_score ?? game.awayScore ?? game.score_away);
+      const score = homeScore === null || awayScore === null ? "" : `${homeScore} - ${awayScore}`;
+
+      return {
+        id: game.id || game.match_id,
+        fixture_id: game.id || game.match_id,
+        status: game.status || game.phase || (score ? "UPDATED" : "SCHEDULED"),
+        scheduled: game.local_date || game.date || game.kickoff,
+        location: game.stadium?.name_en || game.stadium_name || game.venue || "",
+        home: { name: teamName(homeTeam) || game.home_name || game.home_team_name || "" },
+        away: { name: teamName(awayTeam) || game.away_name || game.away_team_name || "" },
+        scores: { score, ft_score: score }
+      };
+    })
+    .filter(match => match.home.name && match.away.name && match.scores.score);
+
+  return { fixtures, liveScores };
 }
 
 async function serveStatic(req, res, url) {
@@ -168,3 +205,4 @@ http.createServer(async (req, res) => {
 }).listen(PORT, HOST, () => {
   console.log(`World Cup pool app running at http://${HOST}:${PORT}/?pool=main`);
 });
+
