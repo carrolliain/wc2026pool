@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 FIFA World Cup FunFunFun Pool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "Segoe UI", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-[#07122d] text-slate-100" data-mobile-section="fixtures">
+  <style>
+    @media (max-width: 1023px) {
+      [data-mobile-panel] { display: none; }
+      body[data-mobile-section="fixtures"] [data-mobile-panel="fixtures"],
+      body[data-mobile-section="progress"] [data-mobile-panel="progress"],
+      body[data-mobile-section="draft"] [data-mobile-panel="draft"],
+      body[data-mobile-section="settings"] [data-mobile-panel="settings"] { display: block; }
+    }
+  </style>
+  <main class="mx-auto flex w-full max-w-[1800px] flex-col gap-4 px-3 pb-28 pt-4 sm:px-5 lg:px-6 lg:pb-4">
+    <header class="overflow-hidden rounded-lg border border-white/15 bg-[#0b1f54] shadow-2xl">
+      <div class="h-2 bg-gradient-to-r from-[#009b3a] via-[#fcd116] via-45% to-[#c8102e]"></div>
+      <div class="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex items-center gap-4">
+        <div class="grid h-20 w-20 shrink-0 place-items-center rounded-lg border border-[#fcd116]/60 bg-[#c8102e] text-center shadow-lg">
+          <div class="text-[10px] font-black uppercase leading-tight tracking-wide text-white">FIFA<br />World Cup</div>
+          <div class="text-2xl font-black leading-none text-[#fcd116]">26</div>
+        </div>
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-wide text-[#fcd116]">Canada · Mexico · United States</p>
+          <h1 class="mt-1 text-3xl font-black text-white sm:text-4xl">FunFunFun Pool</h1>
+          <p class="mt-1 text-sm font-semibold text-sky-100">Group-stage fixtures, live pool standings, and instant hash sharing.</p>
+        </div>
+      </div>
+      </div>
+    </header>
+
+    <section class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(300px,0.85fr)_minmax(360px,0.95fr)_minmax(720px,1.7fr)]">
+      <aside class="flex min-h-0 flex-col gap-4">
+        <section class="rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="settings">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-lg font-bold text-white">Control Dashboard</h2>
+            <span id="lockBadge" class="rounded-md px-2 py-1 text-xs font-black uppercase tracking-wide"></span>
+          </div>
+          <form id="lockForm" class="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+            <input id="lockPassword" class="min-w-0 rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#fcd116]" type="password" placeholder="Dashboard password" autocomplete="current-password" />
+            <button id="lockToggleBtn" class="rounded-md bg-[#fcd116] px-4 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200" type="submit">Unlock</button>
+          </form>
+          <p id="lockStatus" class="mt-2 min-h-5 text-xs font-semibold text-slate-400"></p>
+          <form id="poolForm" class="mt-4 rounded-lg border border-white/10 bg-[#07122d] p-3">
+            <label class="text-xs font-black uppercase tracking-wide text-[#fcd116]" for="poolNameInput">Pool Name</label>
+            <textarea id="poolNameInput" class="mt-2 min-h-16 w-full resize-y rounded-md border border-white/15 bg-[#020817] px-3 py-2 text-sm font-semibold text-white outline-none transition placeholder:text-slate-500 focus:border-[#fcd116]" placeholder="Enter a pool name"></textarea>
+            <button class="mt-2 w-full rounded-md bg-[#fcd116] px-4 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200" type="submit">Load Pool</button>
+          </form>
+          <section class="mt-4 rounded-lg border border-white/10 bg-[#07122d] p-3">
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-semibold text-slate-200">Shareable pool link</span>
+              <button id="copyLinkBtn" class="rounded-md bg-[#fcd116] px-3 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200">
+                Copy
+              </button>
+            </div>
+            <input id="shareUrl" class="mt-2 w-full rounded-md border border-white/15 bg-[#020817] px-3 py-2 text-xs text-slate-300 outline-none focus:border-[#fcd116]" readonly />
+            <p id="copyStatus" class="mt-2 min-h-5 text-xs text-slate-400"></p>
+          </section>
+          <section class="mt-4 rounded-lg border border-white/10 bg-[#07122d] p-3">
+            <h3 class="text-xs font-black uppercase tracking-wide text-[#fcd116]">Backup / Import</h3>
+            <div class="mt-3 grid grid-cols-1 gap-2">
+              <button id="backupBtn" class="rounded-md bg-[#009b3a] px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300" type="button">Download Backup</button>
+              <label class="block rounded-md border border-dashed border-white/20 px-3 py-3 text-center text-xs font-semibold text-slate-300 transition hover:border-[#fcd116]">
+                Import Backup
+                <input id="importBackupInput" class="sr-only" type="file" accept="application/json,.json" />
+              </label>
+            </div>
+            <p id="backupStatus" class="mt-2 min-h-5 text-xs font-semibold text-slate-400"></p>
+          </section>
+          <form id="playerForm" class="mt-4 flex gap-2">
+            <input id="playerName" class="min-w-0 flex-1 rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#fcd116]" placeholder="Add participant" autocomplete="off" />
+            <button class="rounded-md bg-[#fcd116] px-4 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200" type="submit">Add</button>
+          </form>
+          <ul id="playersList" class="mt-4 space-y-2"></ul>
+          <button id="draftBtn" class="mt-4 w-full rounded-md bg-[#009b3a] px-4 py-3 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300">
+            Randomize Draft
+          </button>
+        </section>
+
+        <section class="rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="draft">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-lg font-bold text-white">Draft Results</h2>
+            <span id="draftCount" class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300"></span>
+          </div>
+          <div id="assignmentsView" class="mt-4 space-y-3"></div>
+          <div class="mt-5 border-t border-slate-800 pt-4">
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-300">Leftovers</h3>
+            <div id="leftoversView" class="mt-3 flex flex-wrap gap-2"></div>
+          </div>
+        </section>
+      </aside>
+
+      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="fixtures">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-bold text-white">Group Stage Fixtures</h2>
+          <span id="fixtureCount" class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300"></span>
+        </div>
+        <div id="todayMatchesView" class="mt-4"></div>
+        <label class="mt-3 block text-xs font-black uppercase tracking-wide text-[#fcd116]" for="timeZoneSelect">Match Times</label>
+        <select id="timeZoneSelect" class="mt-2 w-full rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm font-bold text-white outline-none focus:border-[#fcd116]">
+          <option value="ireland">Ireland</option>
+          <option value="australia">Australia</option>
+          <option value="local">Venue local</option>
+        </select>
+        <div id="liveDataStatus" class="mt-3 rounded-lg border border-white/10 bg-[#07122d] px-3 py-2 text-xs font-semibold text-slate-400"></div>
+        <div id="fixturesView" class="mt-4 max-h-[78vh] space-y-3 overflow-y-auto pr-1"></div>
+      </section>
+
+      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="progress">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-bold text-white">Tournament Progress</h2>
+          <span class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">Live bracket</span>
+        </div>
+        <div id="stageTabs" class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-6"></div>
+        <div id="standingsView" class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2"></div>
+      </section>
+    </section>
+  </main>
+
+  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#07122d]/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-2xl backdrop-blur lg:hidden" aria-label="Mobile sections">
+    <div class="mx-auto grid max-w-xl grid-cols-4 gap-2">
+      <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="fixtures">Fixtures</button>
+      <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="progress">Progress</button>
+      <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="draft">Draft</button>
+      <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="settings">Settings</button>
+    </div>
+  </nav>
+
+  <script>
+    const GROUP_NAMES = "ABCDEFGHIJKL".split("");
+    let currentPoolSlug = normalizePoolSlug(new URLSearchParams(window.location.search).get("pool") || "");
+    let selectedTimeZoneMode = localStorage.getItem("worldCupTimeZoneMode") || "ireland";
+    let activeMobileSection = "fixtures";
+
+    function poolApiUrl() {
+      if (!currentPoolSlug) return "";
+      return `/api/pools/${encodeURIComponent(currentPoolSlug)}`;
+    }
+
+    const FLAG_CODES = {
+      Argentina: "ar", France: "fr", Brazil: "br", England: "gb-eng", Belgium: "be", Portugal: "pt",
+      Spain: "es", Netherlands: "nl", Italy: "it", Croatia: "hr", Germany: "de", USA: "us",
+      Mexico: "mx", Canada: "ca", Morocco: "ma", Colombia: "co", Japan: "jp", Senegal: "sn",
+      Uruguay: "uy", Switzerland: "ch", Denmark: "dk", "South Korea": "kr", Ecuador: "ec",
+      Austria: "at", Ukraine: "ua", Peru: "pe", Poland: "pl", Sweden: "se", Egypt: "eg",
+      Chile: "cl", Nigeria: "ng", Iran: "ir", Turkey: "tr", Scotland: "gb-sct", Algeria: "dz",
+      Bosnia: "ba", Jamaica: "jm", "South Africa": "za", "New Zealand": "nz", Haiti: "ht",
+      Angola: "ao", Curacao: "cw", Uzbekistan: "uz", Panama: "pa", UAE: "ae",
+      "Cabo Verde": "cv", Albania: "al", Honduras: "hn"
+    };
+
+    const GROUP_SCHEDULE = {
+      A: [
+        { matchNo: 1, date: "2026-06-11", time: "13:00", venue: "Estadio Azteca, Mexico City" },
+        { matchNo: 2, date: "2026-06-11", time: "20:00", venue: "Estadio Akron, Guadalajara" },
+        { matchNo: 25, date: "2026-06-18", time: "12:00", venue: "Mercedes-Benz Stadium, Atlanta" },
+        { matchNo: 28, date: "2026-06-18", time: "19:00", venue: "Estadio Akron, Guadalajara" },
+        { matchNo: 53, date: "2026-06-24", time: "19:00", venue: "Estadio Azteca, Mexico City" },
+        { matchNo: 54, date: "2026-06-24", time: "19:00", venue: "Estadio BBVA, Monterrey" }
+      ],
+      B: [
+        { matchNo: 3, date: "2026-06-12", time: "15:00", venue: "BMO Field, Toronto" },
+        { matchNo: 8, date: "2026-06-13", time: "12:00", venue: "Levi's Stadium, San Francisco Bay Area" },
+        { matchNo: 26, date: "2026-06-18", time: "12:00", venue: "SoFi Stadium, Los Angeles" },
+        { matchNo: 27, date: "2026-06-18", time: "15:00", venue: "BC Place, Vancouver" },
+        { matchNo: 51, date: "2026-06-24", time: "12:00", venue: "BC Place, Vancouver" },
+        { matchNo: 52, date: "2026-06-24", time: "12:00", venue: "Lumen Field, Seattle" }
+      ],
+      C: [
+        { matchNo: 5, date: "2026-06-13", time: "21:00", venue: "Gillette Stadium, Boston" },
+        { matchNo: 7, date: "2026-06-13", time: "18:00", venue: "MetLife Stadium, New York / New Jersey" },
+        { matchNo: 29, date: "2026-06-19", time: "21:00", venue: "Lincoln Financial Field, Philadelphia" },
+        { matchNo: 30, date: "2026-06-19", time: "18:00", venue: "Gillette Stadium, Boston" },
+        { matchNo: 49, date: "2026-06-24", time: "18:00", venue: "Hard Rock Stadium, Miami" },
+        { matchNo: 50, date: "2026-06-24", time: "18:00", venue: "Mercedes-Benz Stadium, Atlanta" }
+      ],
+      D: [
+        { matchNo: 4, date: "2026-06-12", time: "18:00", venue: "SoFi Stadium, Los Angeles" },
+        { matchNo: 6, date: "2026-06-13", time: "21:00", venue: "BC Place, Vancouver" },
+        { matchNo: 31, date: "2026-06-19", time: "20:00", venue: "Levi's Stadium, San Francisco Bay Area" },
+        { matchNo: 32, date: "2026-06-19", time: "12:00", venue: "Lumen Field, Seattle" },
+        { matchNo: 59, date: "2026-06-25", time: "19:00", venue: "SoFi Stadium, Los Angeles" },
+        { matchNo: 60, date: "2026-06-25", time: "19:00", venue: "Levi's Stadium, San Francisco Bay Area" }
+      ],
+      E: [
+        { matchNo: 9, date: "2026-06-14", time: "19:00", venue: "Lincoln Financial Field, Philadelphia" },
+        { matchNo: 10, date: "2026-06-14", time: "12:00", venue: "NRG Stadium, Houston" },
+        { matchNo: 33, date: "2026-06-20", time: "16:00", venue: "BMO Field, Toronto" },
+        { matchNo: 34, date: "2026-06-20", time: "19:00", venue: "Arrowhead Stadium, Kansas City" },
+        { matchNo: 55, date: "2026-06-25", time: "16:00", venue: "Lincoln Financial Field, Philadelphia" },
+        { matchNo: 56, date: "2026-06-25", time: "16:00", venue: "MetLife Stadium, New York / New Jersey" }
+      ],
+      F: [
+        { matchNo: 11, date: "2026-06-14", time: "15:00", venue: "AT&T Stadium, Dallas" },
+        { matchNo: 12, date: "2026-06-14", time: "20:00", venue: "Estadio BBVA, Monterrey" },
+        { matchNo: 35, date: "2026-06-20", time: "12:00", venue: "NRG Stadium, Houston" },
+        { matchNo: 36, date: "2026-06-20", time: "22:00", venue: "Estadio BBVA, Monterrey" },
+        { matchNo: 57, date: "2026-06-25", time: "18:00", venue: "AT&T Stadium, Dallas" },
+        { matchNo: 58, date: "2026-06-25", time: "18:00", venue: "Arrowhead Stadium, Kansas City" }
+      ],
+      G: [
+        { matchNo: 15, date: "2026-06-15", time: "18:00", venue: "SoFi Stadium, Los Angeles" },
+        { matchNo: 16, date: "2026-06-15", time: "12:00", venue: "Lumen Field, Seattle" },
+        { matchNo: 39, date: "2026-06-21", time: "12:00", venue: "SoFi Stadium, Los Angeles" },
+        { matchNo: 40, date: "2026-06-21", time: "18:00", venue: "BC Place, Vancouver" },
+        { matchNo: 63, date: "2026-06-26", time: "20:00", venue: "Lumen Field, Seattle" },
+        { matchNo: 64, date: "2026-06-26", time: "20:00", venue: "BC Place, Vancouver" }
+      ],
+      H: [
+        { matchNo: 13, date: "2026-06-15", time: "18:00", venue: "Hard Rock Stadium, Miami" },
+        { matchNo: 14, date: "2026-06-15", time: "12:00", venue: "Mercedes-Benz Stadium, Atlanta" },
+        { matchNo: 37, date: "2026-06-21", time: "18:00", venue: "Hard Rock Stadium, Miami" },
+        { matchNo: 38, date: "2026-06-21", time: "12:00", venue: "Mercedes-Benz Stadium, Atlanta" },
+        { matchNo: 65, date: "2026-06-26", time: "19:00", venue: "NRG Stadium, Houston" },
+        { matchNo: 66, date: "2026-06-26", time: "18:00", venue: "Estadio Akron, Guadalajara" }
+      ],
+      I: [
+        { matchNo: 17, date: "2026-06-16", time: "15:00", venue: "MetLife Stadium, New York / New Jersey" },
+        { matchNo: 18, date: "2026-06-16", time: "18:00", venue: "Gillette Stadium, Boston" },
+        { matchNo: 41, date: "2026-06-22", time: "20:00", venue: "MetLife Stadium, New York / New Jersey" },
+        { matchNo: 42, date: "2026-06-22", time: "17:00", venue: "Lincoln Financial Field, Philadelphia" },
+        { matchNo: 61, date: "2026-06-26", time: "15:00", venue: "Gillette Stadium, Boston" },
+        { matchNo: 62, date: "2026-06-26", time: "15:00", venue: "BMO Field, Toronto" }
+      ],
+      J: [
+        { matchNo: 19, date: "2026-06-16", time: "20:00", venue: "Arrowhead Stadium, Kansas City" },
+        { matchNo: 20, date: "2026-06-16", time: "21:00", venue: "Levi's Stadium, San Francisco Bay Area" },
+        { matchNo: 43, date: "2026-06-22", time: "12:00", venue: "AT&T Stadium, Dallas" },
+        { matchNo: 44, date: "2026-06-22", time: "20:00", venue: "Levi's Stadium, San Francisco Bay Area" },
+        { matchNo: 69, date: "2026-06-27", time: "21:00", venue: "Arrowhead Stadium, Kansas City" },
+        { matchNo: 70, date: "2026-06-27", time: "21:00", venue: "AT&T Stadium, Dallas" }
+      ],
+      K: [
+        { matchNo: 23, date: "2026-06-17", time: "12:00", venue: "NRG Stadium, Houston" },
+        { matchNo: 24, date: "2026-06-17", time: "20:00", venue: "Estadio Azteca, Mexico City" },
+        { matchNo: 47, date: "2026-06-23", time: "12:00", venue: "NRG Stadium, Houston" },
+        { matchNo: 48, date: "2026-06-23", time: "20:00", venue: "Estadio Akron, Guadalajara" },
+        { matchNo: 71, date: "2026-06-27", time: "19:30", venue: "Hard Rock Stadium, Miami" },
+        { matchNo: 72, date: "2026-06-27", time: "19:30", venue: "Mercedes-Benz Stadium, Atlanta" }
+      ],
+      L: [
+        { matchNo: 21, date: "2026-06-17", time: "19:00", venue: "BMO Field, Toronto" },
+        { matchNo: 22, date: "2026-06-17", time: "15:00", venue: "AT&T Stadium, Dallas" },
+        { matchNo: 45, date: "2026-06-23", time: "16:00", venue: "Gillette Stadium, Boston" },
+        { matchNo: 46, date: "2026-06-23", time: "19:00", venue: "BMO Field, Toronto" },
+        { matchNo: 67, date: "2026-06-27", time: "17:00", venue: "MetLife Stadium, New York / New Jersey" },
+        { matchNo: 68, date: "2026-06-27", time: "17:00", venue: "Lincoln Financial Field, Philadelphia" }
+      ]
+    };
+
+    const STAGES = [
+      { id: "groups", label: "Groups" },
+      { id: "r32", label: "Round of 32" },
+      { id: "r16", label: "Round of 16" },
+      { id: "qf", label: "Quarter-finals" },
+      { id: "sf", label: "Semi-finals" },
+      { id: "final", label: "Final" }
+    ];
+
+    const VENUE_TIME_ZONES = [
+      { match: "Vancouver", zone: "America/Vancouver" },
+      { match: "Seattle", zone: "America/Los_Angeles" },
+      { match: "San Francisco", zone: "America/Los_Angeles" },
+      { match: "Los Angeles", zone: "America/Los_Angeles" },
+      { match: "Guadalajara", zone: "America/Mexico_City" },
+      { match: "Mexico City", zone: "America/Mexico_City" },
+      { match: "Monterrey", zone: "America/Monterrey" },
+      { match: "Dallas", zone: "America/Chicago" },
+      { match: "Houston", zone: "America/Chicago" },
+      { match: "Kansas City", zone: "America/Chicago" },
+      { match: "Atlanta", zone: "America/New_York" },
+      { match: "Miami", zone: "America/New_York" },
+      { match: "Philadelphia", zone: "America/New_York" },
+      { match: "New York", zone: "America/New_York" },
+      { match: "Boston", zone: "America/New_York" },
+      { match: "Toronto", zone: "America/Toronto" }
+    ];
+
+    const DISPLAY_TIME_ZONES = {
+      ireland: { label: "Ireland", zone: "Europe/Dublin" },
+      australia: { label: "Australia", zone: "Australia/Sydney" },
+      local: { label: "Venue local", zone: null }
+    };
+
+    const KNOCKOUT_MATCHES = [
+      { matchNo: 73, stage: "r32", title: "Round of 32", home: { type: "rank", group: "A", rank: 2 }, away: { type: "rank", group: "B", rank: 2 }, date: "2026-06-28", time: "12:00", venue: "SoFi Stadium, Los Angeles" },
+      { matchNo: 74, stage: "r32", title: "Round of 32", home: { type: "rank", group: "E", rank: 1 }, away: { type: "third", groups: "ABCDF" }, date: "2026-06-29", time: "16:30", venue: "Gillette Stadium, Boston" },
+      { matchNo: 75, stage: "r32", title: "Round of 32", home: { type: "rank", group: "F", rank: 1 }, away: { type: "rank", group: "C", rank: 2 }, date: "2026-06-29", time: "19:00", venue: "Estadio BBVA, Monterrey" },
+      { matchNo: 76, stage: "r32", title: "Round of 32", home: { type: "rank", group: "C", rank: 1 }, away: { type: "rank", group: "F", rank: 2 }, date: "2026-06-29", time: "12:00", venue: "NRG Stadium, Houston" },
+      { matchNo: 77, stage: "r32", title: "Round of 32", home: { type: "rank", group: "I", rank: 1 }, away: { type: "third", groups: "CDFGH" }, date: "2026-06-30", time: "17:00", venue: "MetLife Stadium, New York / New Jersey" },
+      { matchNo: 78, stage: "r32", title: "Round of 32", home: { type: "rank", group: "E", rank: 2 }, away: { type: "rank", group: "I", rank: 2 }, date: "2026-06-30", time: "12:00", venue: "AT&T Stadium, Dallas" },
+      { matchNo: 79, stage: "r32", title: "Round of 32", home: { type: "rank", group: "A", rank: 1 }, away: { type: "third", groups: "CEFHI" }, date: "2026-06-30", time: "19:00", venue: "Estadio Azteca, Mexico City" },
+      { matchNo: 80, stage: "r32", title: "Round of 32", home: { type: "rank", group: "L", rank: 1 }, away: { type: "third", groups: "EHIJK" }, date: "2026-07-01", time: "12:00", venue: "Mercedes-Benz Stadium, Atlanta" },
+      { matchNo: 81, stage: "r32", title: "Round of 32", home: { type: "rank", group: "D", rank: 1 }, away: { type: "third", groups: "BEFIJ" }, date: "2026-07-01", time: "17:00", venue: "Levi's Stadium, San Francisco Bay Area" },
+      { matchNo: 82, stage: "r32", title: "Round of 32", home: { type: "rank", group: "G", rank: 1 }, away: { type: "third", groups: "AEHIJ" }, date: "2026-07-01", time: "13:00", venue: "Lumen Field, Seattle" },
+      { matchNo: 83, stage: "r32", title: "Round of 32", home: { type: "rank", group: "K", rank: 2 }, away: { type: "rank", group: "L", rank: 2 }, date: "2026-07-02", time: "19:00", venue: "BMO Field, Toronto" },
+      { matchNo: 84, stage: "r32", title: "Round of 32", home: { type: "rank", group: "H", rank: 1 }, away: { type: "rank", group: "J", rank: 2 }, date: "2026-07-02", time: "12:00", venue: "SoFi Stadium, Los Angeles" },
+      { matchNo: 85, stage: "r32", title: "Round of 32", home: { type: "rank", group: "B", rank: 1 }, away: { type: "third", groups: "EFGIJ" }, date: "2026-07-02", time: "20:00", venue: "BC Place, Vancouver" },
+      { matchNo: 86, stage: "r32", title: "Round of 32", home: { type: "rank", group: "J", rank: 1 }, away: { type: "rank", group: "H", rank: 2 }, date: "2026-07-03", time: "18:00", venue: "Hard Rock Stadium, Miami" },
+      { matchNo: 87, stage: "r32", title: "Round of 32", home: { type: "rank", group: "K", rank: 1 }, away: { type: "third", groups: "DEIJL" }, date: "2026-07-03", time: "20:30", venue: "Arrowhead Stadium, Kansas City" },
+      { matchNo: 88, stage: "r32", title: "Round of 32", home: { type: "rank", group: "D", rank: 2 }, away: { type: "rank", group: "G", rank: 2 }, date: "2026-07-03", time: "13:00", venue: "AT&T Stadium, Dallas" },
+      { matchNo: 89, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 74 }, away: { type: "winner", matchNo: 77 }, date: "2026-07-04", time: "17:00", venue: "Lincoln Financial Field, Philadelphia" },
+      { matchNo: 90, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 73 }, away: { type: "winner", matchNo: 75 }, date: "2026-07-04", time: "12:00", venue: "NRG Stadium, Houston" },
+      { matchNo: 91, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 76 }, away: { type: "winner", matchNo: 78 }, date: "2026-07-05", time: "16:00", venue: "MetLife Stadium, New York / New Jersey" },
+      { matchNo: 92, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 79 }, away: { type: "winner", matchNo: 80 }, date: "2026-07-05", time: "18:00", venue: "Estadio Azteca, Mexico City" },
+      { matchNo: 93, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 83 }, away: { type: "winner", matchNo: 84 }, date: "2026-07-06", time: "14:00", venue: "AT&T Stadium, Dallas" },
+      { matchNo: 94, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 81 }, away: { type: "winner", matchNo: 82 }, date: "2026-07-06", time: "17:00", venue: "Lumen Field, Seattle" },
+      { matchNo: 95, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 86 }, away: { type: "winner", matchNo: 88 }, date: "2026-07-07", time: "12:00", venue: "Mercedes-Benz Stadium, Atlanta" },
+      { matchNo: 96, stage: "r16", title: "Round of 16", home: { type: "winner", matchNo: 85 }, away: { type: "winner", matchNo: 87 }, date: "2026-07-07", time: "13:00", venue: "BC Place, Vancouver" },
+      { matchNo: 97, stage: "qf", title: "Quarter-final", home: { type: "winner", matchNo: 89 }, away: { type: "winner", matchNo: 90 }, date: "2026-07-09", time: "16:00", venue: "Gillette Stadium, Boston" },
+      { matchNo: 98, stage: "qf", title: "Quarter-final", home: { type: "winner", matchNo: 93 }, away: { type: "winner", matchNo: 94 }, date: "2026-07-10", time: "12:00", venue: "SoFi Stadium, Los Angeles" },
+      { matchNo: 99, stage: "qf", title: "Quarter-final", home: { type: "winner", matchNo: 91 }, away: { type: "winner", matchNo: 92 }, date: "2026-07-11", time: "17:00", venue: "Hard Rock Stadium, Miami" },
+      { matchNo: 100, stage: "qf", title: "Quarter-final", home: { type: "winner", matchNo: 95 }, away: { type: "winner", matchNo: 96 }, date: "2026-07-11", time: "20:00", venue: "Arrowhead Stadium, Kansas City" },
+      { matchNo: 101, stage: "sf", title: "Semi-final", home: { type: "winner", matchNo: 97 }, away: { type: "winner", matchNo: 98 }, date: "2026-07-14", time: "14:00", venue: "AT&T Stadium, Dallas" },
+      { matchNo: 102, stage: "sf", title: "Semi-final", home: { type: "winner", matchNo: 99 }, away: { type: "winner", matchNo: 100 }, date: "2026-07-15", time: "15:00", venue: "Mercedes-Benz Stadium, Atlanta" },
+      { matchNo: 104, stage: "final", title: "Final", home: { type: "winner", matchNo: 101 }, away: { type: "winner", matchNo: 102 }, date: "2026-07-19", time: "15:00", venue: "MetLife Stadium, New York / New Jersey" }
+    ];
+
+    let activeStage = "groups";
+
+    const TEAMS = [
+      { name: "Argentina", tier: 1, group: "A" },
+      { name: "Mexico", tier: 2, group: "A" },
+      { name: "Ukraine", tier: 3, group: "A" },
+      { name: "Jamaica", tier: 4, group: "A" },
+      { name: "France", tier: 1, group: "B" },
+      { name: "Canada", tier: 2, group: "B" },
+      { name: "Peru", tier: 3, group: "B" },
+      { name: "South Africa", tier: 4, group: "B" },
+      { name: "Brazil", tier: 1, group: "C" },
+      { name: "Morocco", tier: 2, group: "C" },
+      { name: "Poland", tier: 3, group: "C" },
+      { name: "New Zealand", tier: 4, group: "C" },
+      { name: "England", tier: 1, group: "D" },
+      { name: "Colombia", tier: 2, group: "D" },
+      { name: "Sweden", tier: 3, group: "D" },
+      { name: "Haiti", tier: 4, group: "D" },
+      { name: "Belgium", tier: 1, group: "E" },
+      { name: "Japan", tier: 2, group: "E" },
+      { name: "Egypt", tier: 3, group: "E" },
+      { name: "Angola", tier: 4, group: "E" },
+      { name: "Portugal", tier: 1, group: "F" },
+      { name: "Senegal", tier: 2, group: "F" },
+      { name: "Chile", tier: 3, group: "F" },
+      { name: "Curacao", tier: 4, group: "F" },
+      { name: "Spain", tier: 1, group: "G" },
+      { name: "Uruguay", tier: 2, group: "G" },
+      { name: "Nigeria", tier: 3, group: "G" },
+      { name: "Uzbekistan", tier: 4, group: "G" },
+      { name: "Netherlands", tier: 1, group: "H" },
+      { name: "Switzerland", tier: 2, group: "H" },
+      { name: "Iran", tier: 3, group: "H" },
+      { name: "Panama", tier: 4, group: "H" },
+      { name: "Italy", tier: 1, group: "I" },
+      { name: "Denmark", tier: 2, group: "I" },
+      { name: "Turkey", tier: 3, group: "I" },
+      { name: "UAE", tier: 4, group: "I" },
+      { name: "Croatia", tier: 1, group: "J" },
+      { name: "South Korea", tier: 2, group: "J" },
+      { name: "Scotland", tier: 3, group: "J" },
+      { name: "Cabo Verde", tier: 4, group: "J" },
+      { name: "Germany", tier: 1, group: "K" },
+      { name: "Ecuador", tier: 2, group: "K" },
+      { name: "Algeria", tier: 3, group: "K" },
+      { name: "Albania", tier: 4, group: "K" },
+      { name: "USA", tier: 1, group: "L" },
+      { name: "Austria", tier: 2, group: "L" },
+      { name: "Bosnia", tier: 3, group: "L" },
+      { name: "Honduras", tier: 4, group: "L" }
+    ];
+
+    const TEAM_BY_NAME = Object.fromEntries(TEAMS.map(team => [team.name, team]));
+
+    let appState = {
+      players: [],
+      assignments: {},
+      leftovers: [],
+      fixtures: createInitialFixtures(),
+      knockouts: {}
+    };
+
+    const els = {
+      lockForm: document.getElementById("lockForm"),
+      lockPassword: document.getElementById("lockPassword"),
+      lockToggleBtn: document.getElementById("lockToggleBtn"),
+      lockBadge: document.getElementById("lockBadge"),
+      lockStatus: document.getElementById("lockStatus"),
+      poolForm: document.getElementById("poolForm"),
+      poolNameInput: document.getElementById("poolNameInput"),
+      backupBtn: document.getElementById("backupBtn"),
+      importBackupInput: document.getElementById("importBackupInput"),
+      backupStatus: document.getElementById("backupStatus"),
+      playerForm: document.getElementById("playerForm"),
+      playerName: document.getElementById("playerName"),
+      playersList: document.getElementById("playersList"),
+      draftBtn: document.getElementById("draftBtn"),
+      assignmentsView: document.getElementById("assignmentsView"),
+      leftoversView: document.getElementById("leftoversView"),
+      draftCount: document.getElementById("draftCount"),
+      fixturesView: document.getElementById("fixturesView"),
+      fixtureCount: document.getElementById("fixtureCount"),
+      todayMatchesView: document.getElementById("todayMatchesView"),
+      timeZoneSelect: document.getElementById("timeZoneSelect"),
+      liveDataStatus: document.getElementById("liveDataStatus"),
+      stageTabs: document.getElementById("stageTabs"),
+      standingsView: document.getElementById("standingsView"),
+      shareUrl: document.getElementById("shareUrl"),
+      copyLinkBtn: document.getElementById("copyLinkBtn"),
+      copyStatus: document.getElementById("copyStatus")
+    };
+    const mobileTabs = [...document.querySelectorAll(".mobile-tab")];
+
+    function createInitialFixtures() {
+      const pairOrder = [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2]];
+      const fixtures = [];
+      GROUP_NAMES.forEach(group => {
+        const groupTeams = TEAMS.filter(team => team.group === group);
+        pairOrder.forEach(([homeIndex, awayIndex], matchIndex) => {
+          const schedule = GROUP_SCHEDULE[group][matchIndex];
+          fixtures.push({
+            id: `${group}-${matchIndex + 1}`,
+            matchNo: schedule.matchNo,
+            group,
+            round: matchIndex + 1,
+            home: groupTeams[homeIndex].name,
+            away: groupTeams[awayIndex].name,
+            date: schedule.date,
+            time: schedule.time,
+            venue: schedule.venue,
+            homeScore: null,
+            awayScore: null
+          });
+        });
+      });
+      return fixtures;
+    }
+
+    function shuffleTeams(teams) {
+      const shuffled = [...teams];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const randomValue = window.crypto?.getRandomValues ? crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32 : Math.random();
+        const j = Math.floor(randomValue * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function generateDraft() {
+      if (!isControlUnlocked()) {
+        els.lockStatus.textContent = "Unlock the dashboard before randomizing.";
+        return;
+      }
+
+      if (appState.players.length === 0) {
+        els.copyStatus.textContent = "Add at least one participant before randomizing.";
+        return;
+      }
+
+      appState.assignments = Object.fromEntries(appState.players.map(player => [player, []]));
+      appState.leftovers = [];
+
+      [1, 2, 3, 4].forEach(tier => {
+        const tierTeams = shuffleTeams(TEAMS.filter(team => team.tier === tier));
+        const quota = Math.floor(tierTeams.length / appState.players.length);
+
+        if (quota >= 1) {
+          appState.players.forEach(player => {
+            const picks = tierTeams.splice(0, quota);
+            appState.assignments[player].push(...picks);
+          });
+        }
+
+        appState.leftovers.push(...tierTeams);
+      });
+
+      updateHashAndRender();
+    }
+
+    function compileStandings() {
+      const ownerByTeam = getOwnerByTeam();
+      const standings = {};
+
+      GROUP_NAMES.forEach(group => {
+        standings[group] = TEAMS
+          .filter(team => team.group === group)
+          .map(team => ({
+            team: team.name,
+            group,
+            owner: ownerByTeam[team.name] || "",
+            played: 0,
+            points: 0,
+            gf: 0,
+            ga: 0,
+            gd: 0
+          }));
+      });
+
+      appState.fixtures.forEach(match => {
+        if (!Number.isInteger(match.homeScore) || !Number.isInteger(match.awayScore)) return;
+
+        const home = standings[match.group].find(row => row.team === match.home);
+        const away = standings[match.group].find(row => row.team === match.away);
+        if (!home || !away) return;
+
+        home.played += 1;
+        away.played += 1;
+        home.gf += match.homeScore;
+        home.ga += match.awayScore;
+        away.gf += match.awayScore;
+        away.ga += match.homeScore;
+
+        if (match.homeScore > match.awayScore) home.points += 3;
+        else if (match.homeScore < match.awayScore) away.points += 3;
+        else {
+          home.points += 1;
+          away.points += 1;
+        }
+
+        home.gd = home.gf - home.ga;
+        away.gd = away.gf - away.ga;
+      });
+
+      Object.values(standings).forEach(groupRows => {
+        groupRows.sort((a, b) =>
+          b.points - a.points ||
+          b.gd - a.gd ||
+          b.gf - a.gf ||
+          a.team.localeCompare(b.team)
+        );
+      });
+
+      return standings;
+    }
+
+    function getOwnerByTeam() {
+      const ownerByTeam = {};
+      Object.entries(appState.assignments).forEach(([player, teams]) => {
+        teams.forEach(team => {
+          ownerByTeam[team.name] = player;
+        });
+      });
+      return ownerByTeam;
+    }
+
+    function addPlayer(name) {
+      if (!isControlUnlocked()) {
+        els.lockStatus.textContent = "Unlock the dashboard before editing players.";
+        return;
+      }
+
+      const cleanName = name.trim();
+      if (!cleanName || appState.players.some(player => player.toLowerCase() === cleanName.toLowerCase())) return;
+      appState.players.push(cleanName);
+      appState.assignments[cleanName] = [];
+      updateHashAndRender();
+    }
+
+    function removePlayer(name) {
+      if (!isControlUnlocked()) {
+        els.lockStatus.textContent = "Unlock the dashboard before editing players.";
+        return;
+      }
+
+      appState.players = appState.players.filter(player => player !== name);
+      const releasedTeams = appState.assignments[name] || [];
+      delete appState.assignments[name];
+      appState.leftovers.push(...releasedTeams);
+      updateHashAndRender();
+    }
+
+    function setAutomatedScore(matchId, homeScore, awayScore) {
+      const match = appState.fixtures.find(item => item.id === matchId);
+      if (!match) return;
+      match.homeScore = Number.isInteger(homeScore) ? homeScore : null;
+      match.awayScore = Number.isInteger(awayScore) ? awayScore : null;
+      renderStandings();
+    }
+
+    function serializeState() {
+      const json = JSON.stringify(appState);
+      return btoa(unescape(encodeURIComponent(json)));
+    }
+
+    async function loadPoolState() {
+      if (!currentPoolSlug) {
+        appState = { players: [], assignments: {}, leftovers: [], fixtures: createInitialFixtures(), knockouts: {} };
+        render();
+        refreshLiveData();
+        setInterval(refreshLiveData, 60000);
+        els.copyStatus.textContent = "Enter a pool name to load shared pool data.";
+        return;
+      }
+
+      try {
+        const response = await fetch(poolApiUrl());
+        if (!response.ok) throw new Error("Unable to load pool");
+        const data = await response.json();
+        if (data.state) applyParsedState(data.state);
+        else hydrateFromHash();
+      } catch (error) {
+        console.warn("Using local default state because the pool server was not reachable.", error);
+        hydrateFromHash();
+      }
+      render();
+      refreshLiveData();
+      setInterval(refreshLiveData, 60000);
+    }
+
+    async function refreshLiveData() {
+      try {
+        const response = await fetch("/api/worldcup/live");
+        if (!response.ok) throw new Error("Live feed unavailable");
+        const data = await response.json();
+        if (!data.configured) {
+          els.liveDataStatus.textContent = data.message;
+          return;
+        }
+
+        const updates = applyLiveScores(data.liveScores || []);
+        els.liveDataStatus.textContent = `Live feed connected. Last checked ${new Date(data.fetchedAt).toLocaleTimeString()}. ${updates} score update${updates === 1 ? "" : "s"} applied.`;
+        if (updates > 0) {
+          renderFixtures();
+          renderStandings();
+        }
+      } catch (error) {
+        els.liveDataStatus.textContent = "Live score feed is currently unavailable.";
+      }
+    }
+
+    function applyLiveScores(liveScores) {
+      let updates = 0;
+      liveScores.forEach(item => {
+        const home = normalizeTeamName(item.home?.name);
+        const away = normalizeTeamName(item.away?.name);
+        const score = parseScore(item.scores?.score || item.scores?.ft_score);
+        if (!score) return;
+
+        const groupMatch = appState.fixtures.find(match =>
+          normalizeTeamName(match.home) === home && normalizeTeamName(match.away) === away
+        );
+        if (groupMatch && (groupMatch.homeScore !== score.homeScore || groupMatch.awayScore !== score.awayScore)) {
+          groupMatch.homeScore = score.homeScore;
+          groupMatch.awayScore = score.awayScore;
+          updates += 1;
+        }
+
+        const knockoutMatch = buildKnockoutMatches().find(match =>
+          normalizeTeamName(match.homeTeam) === home && normalizeTeamName(match.awayTeam) === away
+        );
+        if (knockoutMatch) {
+          const current = appState.knockouts[knockoutMatch.matchNo] || { homeScore: null, awayScore: null };
+          if (current.homeScore !== score.homeScore || current.awayScore !== score.awayScore) {
+            appState.knockouts[knockoutMatch.matchNo] = score;
+            updates += 1;
+          }
+        }
+      });
+      return updates;
+    }
+
+    function parseScore(value) {
+      const match = String(value || "").match(/(\d+)\s*-\s*(\d+)/);
+      if (!match) return null;
+      return { homeScore: Number(match[1]), awayScore: Number(match[2]) };
+    }
+
+    function normalizeTeamName(name) {
+      return String(name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+    }
+
+    function normalizePoolSlug(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
+
+    function applyParsedState(parsed) {
+      const fixturesById = Object.fromEntries(createInitialFixtures().map(match => [match.id, match]));
+      const restoredFixtures = Array.isArray(parsed.fixtures)
+        ? createInitialFixtures().map(match => ({ ...match, ...(parsed.fixtures.find(saved => saved.id === match.id) || {}) }))
+        : createInitialFixtures();
+
+      appState = {
+        players: Array.isArray(parsed.players) ? parsed.players.filter(Boolean).map(String) : [],
+        assignments: restoreAssignments(parsed.assignments),
+        leftovers: restoreTeamArray(parsed.leftovers),
+        fixtures: restoredFixtures.filter(match => fixturesById[match.id]),
+        knockouts: restoreKnockouts(parsed.knockouts)
+      };
+    }
+
+    function hydrateFromHash() {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (!hash.startsWith("pool=")) return;
+
+      try {
+        const decoded = decodeURIComponent(escape(atob(hash.slice(5))));
+        const parsed = JSON.parse(decoded);
+        applyParsedState(parsed);
+      } catch (error) {
+        console.warn("Unable to parse shared pool state.", error);
+        appState = { players: [], assignments: {}, leftovers: [], fixtures: createInitialFixtures(), knockouts: {} };
+      }
+    }
+
+    function restoreKnockouts(knockouts) {
+      if (!knockouts || typeof knockouts !== "object") return {};
+      return Object.fromEntries(Object.entries(knockouts).map(([matchNo, score]) => [
+        matchNo,
+        {
+          homeScore: Number.isInteger(score?.homeScore) ? score.homeScore : null,
+          awayScore: Number.isInteger(score?.awayScore) ? score.awayScore : null
+        }
+      ]));
+    }
+
+    function restoreAssignments(assignments) {
+      const restored = {};
+      if (!assignments || typeof assignments !== "object") return restored;
+
+      Object.entries(assignments).forEach(([player, teams]) => {
+        restored[player] = restoreTeamArray(teams);
+      });
+
+      return restored;
+    }
+
+    function restoreTeamArray(teams) {
+      if (!Array.isArray(teams)) return [];
+      return teams
+        .map(team => TEAM_BY_NAME[team?.name] || TEAM_BY_NAME[team])
+        .filter(Boolean);
+    }
+
+    function createAssignmentBackup() {
+      return {
+        type: "worldcup-pool-assignment-backup",
+        version: 1,
+        pool: currentPoolSlug,
+        exportedAt: new Date().toISOString(),
+        players: [...appState.players],
+        assignments: Object.fromEntries(appState.players.map(player => [
+          player,
+          (appState.assignments[player] || []).map(team => team.name)
+        ]))
+      };
+    }
+
+    function downloadAssignmentBackup() {
+      const backup = createAssignmentBackup();
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${currentPoolSlug || "unsaved-pool"}-assignments-backup.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      els.backupStatus.textContent = "Backup downloaded.";
+    }
+
+    function importAssignmentBackup(backup) {
+      if (!isControlUnlocked()) {
+        els.backupStatus.textContent = "Unlock the dashboard before importing.";
+        return;
+      }
+
+      if (!backup || !Array.isArray(backup.players) || !backup.assignments || typeof backup.assignments !== "object") {
+        els.backupStatus.textContent = "Invalid backup file.";
+        return;
+      }
+
+      const assignedNames = new Set();
+      const players = backup.players.map(player => String(player).trim()).filter(Boolean);
+      const assignments = {};
+
+      players.forEach(player => {
+        const teams = restoreTeamArray(backup.assignments[player]);
+        assignments[player] = teams.filter(team => {
+          if (assignedNames.has(team.name)) return false;
+          assignedNames.add(team.name);
+          return true;
+        });
+      });
+
+      appState.players = players;
+      appState.assignments = assignments;
+      appState.leftovers = TEAMS.filter(team => !assignedNames.has(team.name));
+      updateHashAndRender();
+      els.backupStatus.textContent = `Imported ${players.length} player${players.length === 1 ? "" : "s"} and ${assignedNames.size} assigned team${assignedNames.size === 1 ? "" : "s"}.`;
+    }
+
+    function updateHashAndRender() {
+      updateHash();
+      render();
+    }
+
+    function updateHash() {
+      saveStateToServer();
+    }
+
+    async function saveStateToServer() {
+      const token = sessionStorage.getItem("worldCupAdminToken");
+      if (!token || !currentPoolSlug) return;
+
+      try {
+        const response = await fetch(poolApiUrl(), {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ state: appState })
+        });
+        if (!response.ok) throw new Error("Save failed");
+        els.copyStatus.textContent = `Saved pool "${currentPoolSlug}".`;
+      } catch (error) {
+        console.warn(error);
+        setControlUnlocked(false);
+        els.lockStatus.textContent = "Save failed. Unlock again before editing.";
+      }
+    }
+
+    function render() {
+      renderMobileSection();
+      renderLockState();
+      renderPlayers();
+      renderAssignments();
+      renderTodayMatches();
+      renderFixtures();
+      renderStandings();
+      els.poolNameInput.value = currentPoolSlug;
+      els.timeZoneSelect.value = selectedTimeZoneMode;
+      els.shareUrl.value = currentPoolSlug
+        ? `${window.location.origin}${window.location.pathname}?pool=${encodeURIComponent(currentPoolSlug)}`
+        : `${window.location.origin}${window.location.pathname}`;
+    }
+
+    function renderMobileSection() {
+      document.body.dataset.mobileSection = activeMobileSection;
+      mobileTabs.forEach(button => {
+        const active = button.dataset.section === activeMobileSection;
+        button.className = `mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide transition ${active ? "bg-[#fcd116] text-[#07122d]" : "bg-[#10265f] text-slate-300"}`;
+      });
+    }
+
+    function isControlUnlocked() {
+      return Boolean(sessionStorage.getItem("worldCupAdminToken"));
+    }
+
+    function setControlUnlocked(unlocked) {
+      if (unlocked) {
+        if (!sessionStorage.getItem("worldCupAdminToken")) return;
+      } else {
+        sessionStorage.removeItem("worldCupAdminToken");
+      }
+      renderLockState();
+    }
+
+    function renderLockState() {
+      const unlocked = isControlUnlocked();
+      els.lockBadge.textContent = unlocked ? "Unlocked" : "Locked";
+      els.lockBadge.className = `rounded-md px-2 py-1 text-xs font-black uppercase tracking-wide ${unlocked ? "bg-[#009b3a] text-white" : "bg-[#c8102e] text-white"}`;
+      els.lockToggleBtn.textContent = unlocked ? "Lock" : "Unlock";
+      els.lockPassword.disabled = unlocked;
+      els.lockPassword.classList.toggle("opacity-50", unlocked);
+      els.playerName.disabled = !unlocked;
+      els.playerName.classList.toggle("opacity-50", !unlocked);
+      els.draftBtn.disabled = !unlocked;
+      els.draftBtn.classList.toggle("opacity-50", !unlocked);
+      els.draftBtn.classList.toggle("cursor-not-allowed", !unlocked);
+    }
+
+    function renderPlayers() {
+      const unlocked = isControlUnlocked();
+      els.playersList.innerHTML = appState.players.length
+        ? appState.players.map(player => `
+          <li class="flex items-center justify-between gap-3 rounded-md border border-slate-800 bg-slate-950 px-3 py-2">
+            <span class="min-w-0 truncate text-sm font-semibold text-slate-100">${escapeHtml(player)}</span>
+            <button class="remove-player rounded-md border border-slate-700 px-2 py-1 text-xs font-bold text-slate-300 transition hover:border-rose-400 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-40" data-player="${escapeAttr(player)}" type="button" ${unlocked ? "" : "disabled"}>Remove</button>
+          </li>
+        `).join("")
+        : `<li class="rounded-md border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-400">No participants yet.</li>`;
+    }
+
+    function renderAssignments() {
+      const assignedCount = Object.values(appState.assignments).reduce((total, teams) => total + teams.length, 0);
+      els.draftCount.textContent = `${assignedCount} drafted`;
+
+      els.assignmentsView.innerHTML = appState.players.length
+        ? appState.players.map(player => {
+          const teams = appState.assignments[player] || [];
+          return `
+            <article class="rounded-lg border border-slate-800 bg-slate-950 p-3">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="min-w-0 truncate text-sm font-bold text-white">${escapeHtml(player)}</h3>
+                <span class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">${teams.length}</span>
+              </div>
+              <div class="mt-3 space-y-2">
+                ${[1, 2, 3, 4].map(tier => renderTierGroup(teams, tier)).join("")}
+              </div>
+            </article>
+          `;
+        }).join("")
+        : `<p class="rounded-md border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-400">Add players, then run the draft.</p>`;
+
+      els.leftoversView.innerHTML = appState.leftovers.length
+        ? appState.leftovers.map(team => teamPill(team)).join("")
+        : `<span class="text-sm text-slate-400">No leftover teams.</span>`;
+    }
+
+    function renderTierGroup(teams, tier) {
+      const tierTeams = teams.filter(team => team.tier === tier);
+      return `
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Tier ${tier}</p>
+          <div class="mt-1 flex flex-wrap gap-1.5">${tierTeams.length ? tierTeams.map(team => teamPill(team)).join("") : `<span class="text-xs text-slate-500">None</span>`}</div>
+        </div>
+      `;
+    }
+
+    function teamPill(team) {
+      return `<span class="rounded-md border border-white/10 bg-[#07122d] px-2 py-1 text-xs font-semibold text-slate-200">${teamLabel(team.name)} <span class="text-slate-500">T${team.tier}</span></span>`;
+    }
+
+    function renderTodayMatches() {
+      const today = getLocalDateKey(new Date());
+      const sortedFixtures = getChronologicalFixtures();
+      const todayMatches = sortedFixtures.filter(match => match.date === today);
+      const nextMatch = sortedFixtures.find(match => match.date > today);
+      const heading = todayMatches.length ? `${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"} today` : "No matches today";
+      const detail = todayMatches.length
+        ? todayMatches.map(match => compactMatchLine(match)).join("")
+        : nextMatch
+          ? `<p class="mt-2 text-sm text-slate-300">Next group-stage match: <span class="font-bold text-white">${formatMatchDate(nextMatch.date)}</span> at ${formatMatchTime(nextMatch)}, ${escapeHtml(nextMatch.venue)}.</p>`
+          : `<p class="mt-2 text-sm text-slate-300">The group stage is complete.</p>`;
+
+      els.todayMatchesView.innerHTML = `
+        <section class="rounded-lg border border-[#fcd116]/40 bg-[#07122d] p-3">
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="text-sm font-black uppercase tracking-wide text-[#fcd116]">Today's Matches</h3>
+            <span class="rounded-md bg-[#c8102e] px-2 py-1 text-xs font-bold text-white">${escapeHtml(formatMatchDate(today))}</span>
+          </div>
+          <p class="mt-2 text-lg font-black text-white">${heading}</p>
+          <div class="mt-2 space-y-2">${detail}</div>
+        </section>
+      `;
+    }
+
+    function renderFixtures() {
+      els.fixtureCount.textContent = `${appState.fixtures.length} matches`;
+      els.fixturesView.innerHTML = getChronologicalFixtures().map(match => `
+        <article class="rounded-lg border border-white/10 bg-[#07122d] p-3">
+          <div class="flex items-center justify-between gap-2">
+            <span class="rounded-md bg-[#009b3a] px-2 py-1 text-xs font-bold text-white">Group ${match.group}</span>
+            <span class="text-xs font-semibold text-[#fcd116]">Match ${match.matchNo}</span>
+          </div>
+          <div class="mt-2 grid grid-cols-1 gap-1 text-xs font-semibold text-slate-400">
+            <span>${formatMatchDate(match.date)} - ${formatMatchTime(match)}</span>
+            <span>${escapeHtml(match.venue)}</span>
+          </div>
+          <div class="mt-3 grid grid-cols-[minmax(0,1fr)_64px] items-center gap-2">
+            <span class="truncate text-sm font-semibold text-slate-100">${teamLabel(match.home, { showOwner: true })}</span>
+            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${match.homeScore ?? "-"}</span>
+            <span class="truncate text-sm font-semibold text-slate-100">${teamLabel(match.away, { showOwner: true })}</span>
+            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${match.awayScore ?? "-"}</span>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderStandings() {
+      renderStageTabs();
+      if (activeStage === "groups") {
+        renderGroupStage();
+      } else {
+        renderKnockoutStage(activeStage);
+      }
+    }
+
+    function renderStageTabs() {
+      els.stageTabs.innerHTML = STAGES.map(stage => `
+        <button class="stage-tab rounded-md border px-3 py-2 text-xs font-black uppercase tracking-wide transition ${activeStage === stage.id ? "border-[#fcd116] bg-[#fcd116] text-[#07122d]" : "border-white/10 bg-[#07122d] text-slate-300 hover:border-[#fcd116] hover:text-white"}" data-stage="${stage.id}" type="button">
+          ${escapeHtml(stage.label)}
+        </button>
+      `).join("");
+    }
+
+    function renderGroupStage() {
+      const standings = compileStandings();
+      els.standingsView.className = "mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2";
+      els.standingsView.innerHTML = GROUP_NAMES.map(group => `
+        <article class="overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
+          <div class="flex items-center justify-between bg-slate-800 px-3 py-2">
+            <h3 class="text-sm font-extrabold text-white">Group ${group}</h3>
+            <span class="text-xs font-semibold text-slate-400">4 teams</span>
+          </div>
+          <div>
+            <table class="w-full table-fixed text-left text-xs">
+              <thead class="text-slate-500">
+                <tr class="border-b border-slate-800">
+                  <th class="w-8 px-2 py-2 font-bold">#</th>
+                  <th class="px-2 py-2 font-bold">Team</th>
+                  <th class="w-10 px-2 py-2 text-center font-bold">P</th>
+                  <th class="w-12 px-2 py-2 text-center font-bold">Pts</th>
+                  <th class="w-12 px-2 py-2 text-center font-bold">GD</th>
+                  <th class="w-24 px-2 py-2 font-bold">Owner</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${standings[group].map((row, index) => `
+                  <tr class="border-b border-slate-900 last:border-b-0">
+                    <td class="px-2 py-2 font-bold text-slate-500">${index + 1}</td>
+                    <td class="truncate px-2 py-2 font-bold ${row.owner ? "text-emerald-300" : "text-slate-100"}">${teamLabel(row.team)}</td>
+                    <td class="px-2 py-2 text-center text-slate-300">${row.played}</td>
+                    <td class="px-2 py-2 text-center font-bold text-white">${row.points}</td>
+                    <td class="px-2 py-2 text-center text-slate-300">${row.gd}</td>
+                    <td class="max-w-24 truncate px-2 py-2 ${row.owner ? "font-bold text-emerald-300" : "text-slate-600"}">${escapeHtml(row.owner || "Unowned")}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderKnockoutStage(stageId) {
+      const matches = buildKnockoutMatches().filter(match => match.stage === stageId);
+      const champion = buildKnockoutMatches().find(match => match.matchNo === 104);
+      els.standingsView.className = stageId === "final"
+        ? "mt-4 grid grid-cols-1 gap-3"
+        : "mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2";
+
+      const championCard = stageId === "final" && champion?.winner
+        ? `<section class="rounded-lg border border-[#fcd116] bg-[#07122d] p-4">
+            <p class="text-xs font-black uppercase tracking-wide text-[#fcd116]">Champion</p>
+            <p class="mt-2 text-2xl font-black text-white">${teamLabel(champion.winner)}</p>
+          </section>`
+        : "";
+
+      els.standingsView.innerHTML = championCard + matches.map(match => knockoutCard(match)).join("");
+    }
+
+    function knockoutCard(match) {
+      const score = appState.knockouts[match.matchNo] || { homeScore: null, awayScore: null };
+      const isComplete = Number.isInteger(score.homeScore) && Number.isInteger(score.awayScore) && score.homeScore !== score.awayScore;
+      return `
+        <article class="rounded-lg border ${isComplete ? "border-[#fcd116]/60" : "border-white/10"} bg-[#07122d] p-3">
+          <div class="flex items-center justify-between gap-2">
+            <span class="rounded-md bg-[#c8102e] px-2 py-1 text-xs font-bold text-white">Match ${match.matchNo}</span>
+            <span class="text-xs font-semibold text-[#fcd116]">${escapeHtml(match.title)}</span>
+          </div>
+          <div class="mt-2 grid gap-1 text-xs font-semibold text-slate-400">
+            <span>${formatMatchDate(match.date)} - ${formatMatchTime(match)}</span>
+            <span>${escapeHtml(match.venue)}</span>
+          </div>
+          <div class="mt-3 grid grid-cols-[minmax(0,1fr)_64px] items-center gap-2">
+            <span class="truncate text-sm font-bold ${match.winner === match.homeTeam ? "text-emerald-300" : "text-white"}">${teamLabel(match.homeTeam || match.homeLabel, { showOwner: true })}</span>
+            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${score.homeScore ?? "-"}</span>
+            <span class="truncate text-sm font-bold ${match.winner === match.awayTeam ? "text-emerald-300" : "text-white"}">${teamLabel(match.awayTeam || match.awayLabel, { showOwner: true })}</span>
+            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${score.awayScore ?? "-"}</span>
+          </div>
+          <p class="mt-3 min-h-5 text-xs font-semibold ${score.homeScore === score.awayScore && Number.isInteger(score.homeScore) ? "text-rose-300" : "text-slate-500"}">
+            ${match.winner ? `Winner advances: ${teamLabel(match.winner)}` : "Waiting for official result."}
+          </p>
+        </article>
+      `;
+    }
+
+    function buildKnockoutMatches() {
+      const standings = compileStandings();
+      const qualifiers = compileQualifiers(standings);
+      const built = [];
+      const byMatchNo = {};
+      const usedThirds = new Set();
+
+      KNOCKOUT_MATCHES.forEach(template => {
+        const home = resolveKnockoutSlot(template.home, qualifiers, byMatchNo, usedThirds);
+        const away = resolveKnockoutSlot(template.away, qualifiers, byMatchNo, usedThirds);
+        const score = appState.knockouts[template.matchNo] || { homeScore: null, awayScore: null };
+        const match = {
+          ...template,
+          homeTeam: home.team,
+          awayTeam: away.team,
+          homeLabel: home.label,
+          awayLabel: away.label,
+          winner: resolveWinner(home.team, away.team, score)
+        };
+        built.push(match);
+        byMatchNo[template.matchNo] = match;
+      });
+
+      return built;
+    }
+
+    function compileQualifiers(standings) {
+      const thirds = [];
+      const byGroup = {};
+      GROUP_NAMES.forEach(group => {
+        byGroup[group] = standings[group];
+        thirds.push(standings[group][2]);
+      });
+      thirds.sort((a, b) =>
+        b.points - a.points ||
+        b.gd - a.gd ||
+        b.gf - a.gf ||
+        a.team.localeCompare(b.team)
+      );
+      return { byGroup, thirds: thirds.slice(0, 8) };
+    }
+
+    function resolveKnockoutSlot(slot, qualifiers, byMatchNo, usedThirds) {
+      if (slot.type === "rank") {
+        const row = qualifiers.byGroup[slot.group]?.[slot.rank - 1];
+        return { team: row?.team || "", label: `${slot.rank}${slot.group}` };
+      }
+
+      if (slot.type === "third") {
+        const eligibleGroups = slot.groups.split("");
+        const row = qualifiers.thirds.find(candidate =>
+          eligibleGroups.includes(candidate.group) && !usedThirds.has(candidate.team)
+        );
+        if (row) {
+          usedThirds.add(row.team);
+          return { team: row.team, label: `3rd ${slot.groups.split("").join("/")}` };
+        }
+        return { team: "", label: `3rd ${slot.groups.split("").join("/")}` };
+      }
+
+      if (slot.type === "winner") {
+        const previous = byMatchNo[slot.matchNo];
+        return { team: previous?.winner || "", label: `Winner Match ${slot.matchNo}` };
+      }
+
+      return { team: "", label: "TBD" };
+    }
+
+    function resolveWinner(homeTeam, awayTeam, score) {
+      if (!homeTeam || !awayTeam || !Number.isInteger(score.homeScore) || !Number.isInteger(score.awayScore)) return "";
+      if (score.homeScore === score.awayScore) return "";
+      return score.homeScore > score.awayScore ? homeTeam : awayTeam;
+    }
+
+    function getChronologicalFixtures() {
+      return [...appState.fixtures].sort((a, b) =>
+        a.date.localeCompare(b.date) ||
+        a.time.localeCompare(b.time) ||
+        a.matchNo - b.matchNo
+      );
+    }
+
+    function compactMatchLine(match) {
+      return `
+        <div class="rounded-md border border-white/10 bg-[#10265f] p-2">
+          <div class="text-sm font-bold text-white">${teamLabel(match.home, { showOwner: true })} <span class="text-slate-500">v</span> ${teamLabel(match.away, { showOwner: true })}</div>
+          <div class="mt-1 text-xs font-semibold text-slate-400">${formatMatchTime(match)} - ${escapeHtml(match.venue)}</div>
+        </div>
+      `;
+    }
+
+    function teamLabel(teamName, options = {}) {
+      const code = FLAG_CODES[teamName];
+      const flag = code
+        ? `<img class="inline-block h-4 w-6 rounded-[2px] object-cover align-[-3px] shadow-sm" src="https://flagcdn.com/w40/${code}.png" srcset="https://flagcdn.com/w80/${code}.png 2x" alt="${escapeAttr(teamName)} flag" loading="lazy" />`
+        : `<span class="inline-grid h-4 w-6 place-items-center rounded-[2px] bg-slate-700 text-[8px] font-black text-slate-300 align-[-2px]">TBD</span>`;
+      const owner = options.showOwner ? getTeamOwner(teamName) : "";
+      const ownerBadge = owner
+        ? ` <span class="ml-1 inline-block max-w-24 truncate rounded bg-[#fcd116]/15 px-1.5 py-0.5 align-middle text-[10px] font-black uppercase tracking-wide text-[#fcd116]">${escapeHtml(owner)}</span>`
+        : "";
+      return `${flag} <span>${escapeHtml(teamName)}</span>${ownerBadge}`;
+    }
+
+    function getTeamOwner(teamName) {
+      return getOwnerByTeam()[teamName] || "";
+    }
+
+    function getVenueTimeZone(venue) {
+      return VENUE_TIME_ZONES.find(item => venue.includes(item.match))?.zone || "America/New_York";
+    }
+
+    function getDisplayTimeZone(match) {
+      if (selectedTimeZoneMode === "local") return getVenueTimeZone(match.venue);
+      return DISPLAY_TIME_ZONES[selectedTimeZoneMode]?.zone || "Europe/Dublin";
+    }
+
+    function zonedTimeToUtc(dateKey, time, sourceZone) {
+      const [year, month, day] = dateKey.split("-").map(Number);
+      const [hour, minute] = time.split(":").map(Number);
+      const guess = new Date(Date.UTC(year, month - 1, day, hour, minute));
+      const sourceParts = getTimeParts(guess, sourceZone);
+      const sourceAsUtc = Date.UTC(sourceParts.year, sourceParts.month - 1, sourceParts.day, sourceParts.hour, sourceParts.minute);
+      return new Date(guess.getTime() - (sourceAsUtc - guess.getTime()));
+    }
+
+    function getTimeParts(date, timeZone) {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).formatToParts(date);
+      return Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, Number(part.value)]));
+    }
+
+    function formatMatchTime(match) {
+      const targetZone = getDisplayTimeZone(match);
+      const sourceZone = getVenueTimeZone(match.venue);
+      const utcDate = zonedTimeToUtc(match.date, match.time, sourceZone);
+      const label = selectedTimeZoneMode === "local" ? "local" : DISPLAY_TIME_ZONES[selectedTimeZoneMode].label;
+      return `${utcDate.toLocaleTimeString(undefined, { timeZone: targetZone, hour: "2-digit", minute: "2-digit" })} ${label}`;
+    }
+
+    function getLocalDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatMatchDate(dateKey) {
+      const date = new Date(`${dateKey}T12:00:00`);
+      return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replaceAll("`", "&#096;");
+    }
+
+    els.playerForm.addEventListener("submit", event => {
+      event.preventDefault();
+      addPlayer(els.playerName.value);
+      els.playerName.value = "";
+      els.playerName.focus();
+    });
+
+    els.poolForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const nextPool = normalizePoolSlug(els.poolNameInput.value);
+      if (!nextPool) {
+        els.copyStatus.textContent = "Enter a pool name before loading.";
+        return;
+      }
+      currentPoolSlug = nextPool;
+      history.replaceState(null, "", `${window.location.pathname}?pool=${encodeURIComponent(currentPoolSlug)}`);
+      els.copyStatus.textContent = `Loaded pool "${currentPoolSlug}".`;
+      loadPoolState();
+    });
+
+    els.backupBtn.addEventListener("click", downloadAssignmentBackup);
+
+    els.importBackupInput.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        const backup = JSON.parse(await file.text());
+        importAssignmentBackup(backup);
+      } catch {
+        els.backupStatus.textContent = "Could not read that backup file.";
+      } finally {
+        event.target.value = "";
+      }
+    });
+
+    els.lockForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (isControlUnlocked()) {
+        setControlUnlocked(false);
+        els.lockPassword.value = "";
+        els.lockStatus.textContent = "Dashboard locked.";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/admin/unlock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: els.lockPassword.value })
+        });
+        if (!response.ok) throw new Error("Incorrect password");
+        const data = await response.json();
+        sessionStorage.setItem("worldCupAdminToken", data.token);
+        setControlUnlocked(true);
+        els.lockPassword.value = "";
+        els.lockStatus.textContent = "Admin editing unlocked for this browser session.";
+        els.playerName.focus();
+      } catch {
+        els.lockStatus.textContent = "Incorrect password.";
+        els.lockPassword.select();
+      }
+    });
+
+    els.playersList.addEventListener("click", event => {
+      const button = event.target.closest(".remove-player");
+      if (button) removePlayer(button.dataset.player);
+    });
+
+    els.draftBtn.addEventListener("click", generateDraft);
+
+    els.stageTabs.addEventListener("click", event => {
+      const button = event.target.closest(".stage-tab");
+      if (!button) return;
+      activeStage = button.dataset.stage;
+      renderStandings();
+    });
+
+    els.timeZoneSelect.addEventListener("change", event => {
+      selectedTimeZoneMode = event.target.value;
+      localStorage.setItem("worldCupTimeZoneMode", selectedTimeZoneMode);
+      renderTodayMatches();
+      renderFixtures();
+      renderStandings();
+    });
+
+    mobileTabs.forEach(button => {
+      button.addEventListener("click", () => {
+        activeMobileSection = button.dataset.section;
+        renderMobileSection();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    els.copyLinkBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(els.shareUrl.value);
+        els.copyStatus.textContent = "Link copied to clipboard.";
+      } catch {
+        els.shareUrl.select();
+        document.execCommand("copy");
+        els.copyStatus.textContent = "Link selected and copied.";
+      }
+    });
+
+    loadPoolState();
+  </script>
+</body>
+</html>
