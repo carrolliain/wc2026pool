@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -23,8 +23,7 @@
       [data-mobile-panel] { display: none; }
       body[data-mobile-section="fixtures"] [data-mobile-panel="fixtures"],
       body[data-mobile-section="progress"] [data-mobile-panel="progress"],
-      body[data-mobile-section="draft"] [data-mobile-panel="draft"],
-      body[data-mobile-section="settings"] [data-mobile-panel="settings"] { display: block; }
+      body[data-mobile-section="draft"] [data-mobile-panel="draft"] { display: block; }
     }
   </style>
   <main class="mx-auto flex w-full max-w-[1800px] flex-col gap-4 px-3 pb-28 pt-4 sm:px-5 lg:px-6 lg:pb-4">
@@ -39,7 +38,7 @@
         <div>
           <p class="text-sm font-semibold uppercase tracking-wide text-[#fcd116]">Canada - Mexico - United States</p>
           <h1 class="mt-1 text-3xl font-black text-white sm:text-4xl">FunFunFun Pool</h1>
-          <p class="mt-1 text-sm font-semibold text-sky-100">Group-stage fixtures, live pool standings, and instant hash sharing.</p>
+          <p class="mt-1 text-sm font-semibold text-sky-100">Group-stage fixtures, live standings, and fixed pool assignments.</p>
         </div>
       </div>
       </div>
@@ -47,52 +46,6 @@
 
     <section class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(300px,0.85fr)_minmax(360px,0.95fr)_minmax(720px,1.7fr)]">
       <aside class="flex min-h-0 flex-col gap-4">
-        <section class="rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="settings">
-          <div class="flex items-center justify-between gap-3">
-            <h2 class="text-lg font-bold text-white">Control Dashboard</h2>
-            <span id="lockBadge" class="rounded-md px-2 py-1 text-xs font-black uppercase tracking-wide"></span>
-          </div>
-          <form id="lockForm" class="mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2">
-            <input id="lockPassword" class="min-w-0 rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#fcd116]" type="password" placeholder="Dashboard password" autocomplete="current-password" />
-            <button id="lockToggleBtn" class="rounded-md bg-[#fcd116] px-4 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200" type="submit">Unlock</button>
-          </form>
-          <p id="lockStatus" class="mt-2 min-h-5 text-xs font-semibold text-slate-400"></p>
-          <form id="poolForm" class="mt-4 rounded-lg border border-white/10 bg-[#07122d] p-3">
-            <label class="text-xs font-black uppercase tracking-wide text-[#fcd116]" for="poolNameInput">Pool Name</label>
-            <textarea id="poolNameInput" class="mt-2 min-h-16 w-full resize-y rounded-md border border-white/15 bg-[#020817] px-3 py-2 text-sm font-semibold text-white outline-none transition placeholder:text-slate-500 focus:border-[#fcd116]" placeholder="Enter a pool name"></textarea>
-            <button class="mt-2 w-full rounded-md bg-[#fcd116] px-4 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200" type="submit">Load Pool</button>
-          </form>
-          <section class="mt-4 rounded-lg border border-white/10 bg-[#07122d] p-3">
-            <div class="flex items-center justify-between gap-3">
-              <span class="text-sm font-semibold text-slate-200">Shareable pool link</span>
-              <button id="copyLinkBtn" class="rounded-md bg-[#fcd116] px-3 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200">
-                Copy
-              </button>
-            </div>
-            <input id="shareUrl" class="mt-2 w-full rounded-md border border-white/15 bg-[#020817] px-3 py-2 text-xs text-slate-300 outline-none focus:border-[#fcd116]" readonly />
-            <p id="copyStatus" class="mt-2 min-h-5 text-xs text-slate-400"></p>
-          </section>
-          <section class="mt-4 rounded-lg border border-white/10 bg-[#07122d] p-3">
-            <h3 class="text-xs font-black uppercase tracking-wide text-[#fcd116]">Backup / Import</h3>
-            <div class="mt-3 grid grid-cols-1 gap-2">
-              <button id="backupBtn" class="rounded-md bg-[#009b3a] px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300" type="button">Download Backup</button>
-              <label class="block rounded-md border border-dashed border-white/20 px-3 py-3 text-center text-xs font-semibold text-slate-300 transition hover:border-[#fcd116]">
-                Import Backup
-                <input id="importBackupInput" class="sr-only" type="file" accept="application/json,.json" />
-              </label>
-            </div>
-            <p id="backupStatus" class="mt-2 min-h-5 text-xs font-semibold text-slate-400"></p>
-          </section>
-          <form id="playerForm" class="mt-4 flex gap-2">
-            <input id="playerName" class="min-w-0 flex-1 rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-[#fcd116]" placeholder="Add participant" autocomplete="off" />
-            <button class="rounded-md bg-[#fcd116] px-4 py-2 text-sm font-bold text-[#07122d] transition hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-200" type="submit">Add</button>
-          </form>
-          <ul id="playersList" class="mt-4 space-y-2"></ul>
-          <button id="draftBtn" class="mt-4 w-full rounded-md bg-[#009b3a] px-4 py-3 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300">
-            Randomize Draft
-          </button>
-        </section>
-
         <section class="rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="draft">
           <div class="flex items-center justify-between gap-3">
             <h2 class="text-lg font-bold text-white">Draft Results</h2>
@@ -134,11 +87,10 @@
   </main>
 
   <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#07122d]/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-2xl backdrop-blur lg:hidden" aria-label="Mobile sections">
-    <div class="mx-auto grid max-w-xl grid-cols-4 gap-2">
+    <div class="mx-auto grid max-w-xl grid-cols-3 gap-2">
       <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="fixtures">Fixtures</button>
       <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="progress">Progress</button>
       <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="draft">Draft</button>
-      <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="settings">Settings</button>
     </div>
   </nav>
 
@@ -157,8 +109,8 @@
       Mexico: "mx", "South Africa": "za", "Korea Republic": "kr", Czechia: "cz",
       Canada: "ca", Switzerland: "ch", Qatar: "qa", "Bosnia and Herzegovina": "ba",
       Brazil: "br", Morocco: "ma", Haiti: "ht", Scotland: "gb-sct",
-      "United States": "us", Paraguay: "py", Australia: "au", "Türkiye": "tr",
-      Germany: "de", "Curaçao": "cw", "Côte d’Ivoire": "ci", Ecuador: "ec",
+      "United States": "us", Paraguay: "py", Australia: "au", "TÃ¼rkiye": "tr",
+      Germany: "de", "CuraÃ§ao": "cw", "CÃ´te dâ€™Ivoire": "ci", Ecuador: "ec",
       Netherlands: "nl", Japan: "jp", Tunisia: "tn", Sweden: "se",
       Belgium: "be", Egypt: "eg", Iran: "ir", "New Zealand": "nz",
       Spain: "es", "Cabo Verde": "cv", "Saudi Arabia": "sa", Uruguay: "uy",
@@ -274,9 +226,9 @@
             "time": "21:00",
             "group": "D",
             "homeTeam": "Australia",
-            "awayTeam": "Türkiye",
+            "awayTeam": "TÃ¼rkiye",
             "home": "Australia",
-            "away": "Türkiye",
+            "away": "TÃ¼rkiye",
             "venue": "BC Place",
             "city": "Vancouver",
             "country": "Canada",
@@ -330,9 +282,9 @@
             "timeLocal": "19:00",
             "time": "19:00",
             "group": "E",
-            "homeTeam": "Côte d’Ivoire",
+            "homeTeam": "CÃ´te dâ€™Ivoire",
             "awayTeam": "Ecuador",
-            "home": "Côte d’Ivoire",
+            "home": "CÃ´te dâ€™Ivoire",
             "away": "Ecuador",
             "venue": "Lincoln Financial Field",
             "city": "Philadelphia",
@@ -350,9 +302,9 @@
             "time": "12:00",
             "group": "E",
             "homeTeam": "Germany",
-            "awayTeam": "Curaçao",
+            "awayTeam": "CuraÃ§ao",
             "home": "Germany",
-            "away": "Curaçao",
+            "away": "CuraÃ§ao",
             "venue": "NRG Stadium",
             "city": "Houston",
             "country": "United States",
@@ -748,9 +700,9 @@
             "timeLocal": "20:00",
             "time": "20:00",
             "group": "D",
-            "homeTeam": "Türkiye",
+            "homeTeam": "TÃ¼rkiye",
             "awayTeam": "Paraguay",
-            "home": "Türkiye",
+            "home": "TÃ¼rkiye",
             "away": "Paraguay",
             "venue": "Levi's Stadium",
             "city": "San Francisco Bay Area",
@@ -787,9 +739,9 @@
             "time": "16:00",
             "group": "E",
             "homeTeam": "Germany",
-            "awayTeam": "Côte d’Ivoire",
+            "awayTeam": "CÃ´te dâ€™Ivoire",
             "home": "Germany",
-            "away": "Côte d’Ivoire",
+            "away": "CÃ´te dâ€™Ivoire",
             "venue": "BMO Field",
             "city": "Toronto",
             "country": "Canada",
@@ -806,9 +758,9 @@
             "time": "19:00",
             "group": "E",
             "homeTeam": "Ecuador",
-            "awayTeam": "Curaçao",
+            "awayTeam": "CuraÃ§ao",
             "home": "Ecuador",
-            "away": "Curaçao",
+            "away": "CuraÃ§ao",
             "venue": "Arrowhead Stadium",
             "city": "Kansas City",
             "country": "United States",
@@ -1204,10 +1156,10 @@
             "timeLocal": "16:00",
             "time": "16:00",
             "group": "E",
-            "homeTeam": "Curaçao",
-            "awayTeam": "Côte d’Ivoire",
-            "home": "Curaçao",
-            "away": "Côte d’Ivoire",
+            "homeTeam": "CuraÃ§ao",
+            "awayTeam": "CÃ´te dâ€™Ivoire",
+            "home": "CuraÃ§ao",
+            "away": "CÃ´te dâ€™Ivoire",
             "venue": "Lincoln Financial Field",
             "city": "Philadelphia",
             "country": "United States",
@@ -1280,9 +1232,9 @@
             "timeLocal": "19:00",
             "time": "19:00",
             "group": "D",
-            "homeTeam": "Türkiye",
+            "homeTeam": "TÃ¼rkiye",
             "awayTeam": "United States",
-            "home": "Türkiye",
+            "home": "TÃ¼rkiye",
             "away": "United States",
             "venue": "SoFi Stadium",
             "city": "Los Angeles",
@@ -2387,10 +2339,10 @@
       { name: "United States", tier: 1, group: "D" },
       { name: "Paraguay", tier: 3, group: "D" },
       { name: "Australia", tier: 2, group: "D" },
-      { name: "Türkiye", tier: 4, group: "D" },
+      { name: "TÃ¼rkiye", tier: 4, group: "D" },
       { name: "Germany", tier: 1, group: "E" },
-      { name: "Curaçao", tier: 4, group: "E" },
-      { name: "Côte d’Ivoire", tier: 3, group: "E" },
+      { name: "CuraÃ§ao", tier: 4, group: "E" },
+      { name: "CÃ´te dâ€™Ivoire", tier: 3, group: "E" },
       { name: "Ecuador", tier: 2, group: "E" },
       { name: "Netherlands", tier: 1, group: "F" },
       { name: "Japan", tier: 2, group: "F" },
@@ -2444,13 +2396,61 @@
 
     const TEAM_BY_NAME = Object.fromEntries(TEAMS.map(team => [team.name, team]));
 
-    let appState = {
-      players: [],
-      assignments: {},
-      leftovers: [],
-      fixtures: createInitialFixtures(),
-      knockouts: {}
+    const FIXED_PLAYERS = [
+      "Iain",
+      "Jacinta",
+      "Kaden",
+      "Logan",
+      "Jensen",
+      "Mary",
+      "Laura",
+      "Andrew",
+      "Katie",
+      "Ger",
+      "Eddie",
+      "Catherine"
+    ];
+
+    const FIXED_ASSIGNMENT_NAMES = {
+      Iain: ["France", "Australia", "CÃ´te dâ€™Ivoire", "New Zealand"],
+      Jacinta: ["Argentina", "Colombia", "Scotland", "Sweden"],
+      Kaden: ["England", "Iran", "Paraguay", "Iraq"],
+      Logan: ["Germany", "Korea Republic", "Tunisia", "Haiti"],
+      Jensen: ["Mexico", "Uruguay", "Norway", "Ghana"],
+      Mary: ["United States", "Japan", "Egypt", "Congo DR"],
+      Laura: ["Portugal", "Austria", "Qatar", "CuraÃ§ao"],
+      Andrew: ["Belgium", "Switzerland", "Algeria", "Cabo Verde"],
+      Katie: ["Spain", "Senegal", "Panama", "TÃ¼rkiye"],
+      Ger: ["Netherlands", "Croatia", "South Africa", "Bosnia and Herzegovina"],
+      Eddie: ["Brazil", "Ecuador", "Uzbekistan", "Czechia"],
+      Catherine: ["Canada", "Morocco", "Saudi Arabia", "Jordan"]
     };
+
+    function teamFromName(name) {
+      const team = TEAM_BY_NAME[name];
+      if (!team) throw new Error(`Unknown fixed draft team: ${name}`);
+      return team;
+    }
+
+    function createFixedAssignments() {
+      return Object.fromEntries(FIXED_PLAYERS.map(player => [
+        player,
+        FIXED_ASSIGNMENT_NAMES[player].map(teamFromName)
+      ]));
+    }
+
+    function createFixedPoolState() {
+      return {
+        players: [...FIXED_PLAYERS],
+        assignments: createFixedAssignments(),
+        leftovers: [],
+        fixtures: createInitialFixtures(),
+        knockouts: {}
+      };
+    }
+
+
+    let appState = createFixedPoolState();
 
     const els = {
       lockForm: document.getElementById("lockForm"),
@@ -2634,25 +2634,7 @@
     }
 
     async function loadPoolState() {
-      if (!currentPoolSlug) {
-        appState = { players: [], assignments: {}, leftovers: [], fixtures: createInitialFixtures(), knockouts: {} };
-        render();
-        refreshLiveData();
-        setInterval(refreshLiveData, 60000);
-        els.copyStatus.textContent = "Enter a pool name to load shared pool data.";
-        return;
-      }
-
-      try {
-        const response = await fetch(poolApiUrl());
-        if (!response.ok) throw new Error("Unable to load pool");
-        const data = await response.json();
-        if (data.state) applyParsedState(data.state);
-        else hydrateFromHash();
-      } catch (error) {
-        console.warn("Using local default state because the pool server was not reachable.", error);
-        hydrateFromHash();
-      }
+      appState = createFixedPoolState();
       render();
       refreshLiveData();
       setInterval(refreshLiveData, 60000);
@@ -2671,6 +2653,7 @@
         const updates = applyLiveScores(data.liveScores || []);
         els.liveDataStatus.textContent = `Live feed connected. Last checked ${new Date(data.fetchedAt).toLocaleTimeString()}. ${updates} score update${updates === 1 ? "" : "s"} applied.`;
         if (updates > 0) {
+          renderTodayMatches();
           renderFixtures();
           renderStandings();
         }
@@ -2724,7 +2707,7 @@
 
       if (match.date && match.date < today) return true;
 
-      const activeStatuses = ["live", "in_progress", "in progress", "first half", "second half", "halftime", "half-time", "finished", "complete", "completed", "full time", "full-time", "ft"];
+      const activeStatuses = ["live", "updated", "in_progress", "in progress", "first half", "second half", "halftime", "half-time", "finished", "complete", "completed", "full time", "full-time", "ft"];
       return activeStatuses.some(value => status.includes(value));
     }
 
@@ -2911,17 +2894,11 @@
 
     function render() {
       renderMobileSection();
-      renderLockState();
-      renderPlayers();
       renderAssignments();
       renderTodayMatches();
       renderFixtures();
       renderStandings();
-      els.poolNameInput.value = currentPoolSlug;
       els.timeZoneSelect.value = selectedTimeZoneMode;
-      els.shareUrl.value = currentPoolSlug
-        ? `${window.location.origin}${window.location.pathname}?pool=${encodeURIComponent(currentPoolSlug)}`
-        : `${window.location.origin}${window.location.pathname}`;
     }
 
     function renderMobileSection() {
@@ -2990,7 +2967,7 @@
             </article>
           `;
         }).join("")
-        : `<p class="rounded-md border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-400">Add players, then run the draft.</p>`;
+        : `<p class="rounded-md border border-dashed border-slate-700 px-3 py-3 text-sm text-slate-400">Fixed assignments will appear here.</p>`;
 
       els.leftoversView.innerHTML = appState.leftovers.length
         ? appState.leftovers.map(team => teamPill(team)).join("")
@@ -3346,77 +3323,6 @@
       return escapeHtml(value).replaceAll("`", "&#096;");
     }
 
-    els.playerForm.addEventListener("submit", event => {
-      event.preventDefault();
-      addPlayer(els.playerName.value);
-      els.playerName.value = "";
-      els.playerName.focus();
-    });
-
-    els.poolForm.addEventListener("submit", event => {
-      event.preventDefault();
-      const nextPool = normalizePoolSlug(els.poolNameInput.value);
-      if (!nextPool) {
-        els.copyStatus.textContent = "Enter a pool name before loading.";
-        return;
-      }
-      currentPoolSlug = nextPool;
-      history.replaceState(null, "", `${window.location.pathname}?pool=${encodeURIComponent(currentPoolSlug)}`);
-      els.copyStatus.textContent = `Loaded pool "${currentPoolSlug}".`;
-      loadPoolState();
-    });
-
-    els.backupBtn.addEventListener("click", downloadAssignmentBackup);
-
-    els.importBackupInput.addEventListener("change", async event => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      try {
-        const backup = JSON.parse(await file.text());
-        importAssignmentBackup(backup);
-      } catch {
-        els.backupStatus.textContent = "Could not read that backup file.";
-      } finally {
-        event.target.value = "";
-      }
-    });
-
-    els.lockForm.addEventListener("submit", async event => {
-      event.preventDefault();
-      if (isControlUnlocked()) {
-        setControlUnlocked(false);
-        els.lockPassword.value = "";
-        els.lockStatus.textContent = "Dashboard locked.";
-        return;
-      }
-
-      try {
-        const response = await fetch("/api/admin/unlock", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password: els.lockPassword.value })
-        });
-        if (!response.ok) throw new Error("Incorrect password");
-        const data = await response.json();
-        sessionStorage.setItem("worldCupAdminToken", data.token);
-        setControlUnlocked(true);
-        els.lockPassword.value = "";
-        els.lockStatus.textContent = "Admin editing unlocked for this browser session.";
-        els.playerName.focus();
-      } catch {
-        els.lockStatus.textContent = "Incorrect password.";
-        els.lockPassword.select();
-      }
-    });
-
-    els.playersList.addEventListener("click", event => {
-      const button = event.target.closest(".remove-player");
-      if (button) removePlayer(button.dataset.player);
-    });
-
-    els.draftBtn.addEventListener("click", generateDraft);
-
     els.stageTabs.addEventListener("click", event => {
       const button = event.target.closest(".stage-tab");
       if (!button) return;
@@ -3440,18 +3346,8 @@
       });
     });
 
-    els.copyLinkBtn.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(els.shareUrl.value);
-        els.copyStatus.textContent = "Link copied to clipboard.";
-      } catch {
-        els.shareUrl.select();
-        document.execCommand("copy");
-        els.copyStatus.textContent = "Link selected and copied.";
-      }
-    });
-
     loadPoolState();
   </script>
 </body>
 </html>
+

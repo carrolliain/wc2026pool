@@ -25,6 +25,23 @@ function toNumber(value) {
   return Number.isFinite(number) ? number : null;
 }
 
+function normalizeGameStatus(game, score) {
+  const rawStatus = String(game.status || game.phase || game.state || "").toLowerCase();
+  const elapsed = String(game.time_elapsed || game.elapsed || game.match_time || "").toLowerCase();
+  const finished = String(game.finished ?? game.is_finished ?? game.completed ?? "").toLowerCase();
+
+  if (["true", "1", "yes"].includes(finished) || ["finished", "ft", "fulltime", "full-time"].some(value => rawStatus.includes(value) || elapsed.includes(value))) {
+    return "finished";
+  }
+
+  if (["notstarted", "not_started", "not started", "scheduled", "pending", "fixture"].some(value => rawStatus.includes(value) || elapsed.includes(value))) {
+    return "scheduled";
+  }
+
+  if (!score) return "scheduled";
+  if (rawStatus || elapsed) return "live";
+  return "updated";
+}
 function normalizeFreeData(gamesPayload, teamsPayload) {
   const teams = unwrapList(teamsPayload);
   const teamById = Object.fromEntries(teams.map(team => [String(team.id || team.team_id), team]));
@@ -41,7 +58,7 @@ function normalizeFreeData(gamesPayload, teamsPayload) {
       return {
         id: game.id || game.match_id,
         fixture_id: game.id || game.match_id,
-        status: game.status || game.phase || (score ? "UPDATED" : "SCHEDULED"),
+        status: normalizeGameStatus(game, score),
         scheduled: game.local_date || game.date || game.kickoff,
         location: game.stadium?.name_en || game.stadium_name || game.venue || "",
         home: { name: teamName(homeTeam) || game.home_name || game.home_team_name || "" },
@@ -84,3 +101,4 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
