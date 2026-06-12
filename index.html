@@ -26,27 +26,35 @@
       body[data-mobile-section="draft"] [data-mobile-panel="draft"] { display: block; }
     }
   </style>
-  <main class="mx-auto flex w-full max-w-[1800px] flex-col gap-4 px-3 pb-28 pt-4 sm:px-5 lg:px-6 lg:pb-4">
-    <header class="overflow-hidden rounded-lg border border-white/15 bg-[#0b1f54] shadow-2xl">
-      <div class="h-2 bg-gradient-to-r from-[#009b3a] via-[#fcd116] via-45% to-[#c8102e]"></div>
-      <div class="flex flex-col gap-4 p-4 lg:flex-row lg:items-center lg:justify-between">
-      <div class="flex items-center gap-4">
-        <div class="grid h-20 w-20 shrink-0 place-items-center rounded-lg border border-[#fcd116]/60 bg-[#c8102e] text-center shadow-lg">
-          <div class="text-[10px] font-black uppercase leading-tight tracking-wide text-white">FIFA<br />World Cup</div>
-          <div class="text-2xl font-black leading-none text-[#fcd116]">26</div>
+  <main class="mx-auto flex w-full max-w-[1800px] flex-col gap-3 px-2 pb-28 pt-2 sm:px-4 lg:px-5 lg:pb-4">
+    <section class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(390px,1fr)_minmax(680px,1.55fr)_minmax(280px,0.75fr)]">
+      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-3" data-mobile-panel="fixtures">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-bold text-white">Group Stage Fixtures</h2>
+          <span id="fixtureCount" class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300"></span>
         </div>
-        <div>
-          <p class="text-sm font-semibold uppercase tracking-wide text-[#fcd116]">Canada - Mexico - United States</p>
-          <h1 class="mt-1 text-3xl font-black text-white sm:text-4xl">FunFunFun Pool</h1>
-          <p class="mt-1 text-sm font-semibold text-sky-100">Group-stage fixtures, live standings, and fixed pool assignments.</p>
-        </div>
-      </div>
-      </div>
-    </header>
+        <div id="todayMatchesView" class="sticky top-0 z-20 -mx-1 mt-3 bg-[#10265f] px-1 pb-2 pt-1"></div>
+        <label class="mt-3 block text-xs font-black uppercase tracking-wide text-[#fcd116]" for="timeZoneSelect">Match Times</label>
+        <select id="timeZoneSelect" class="mt-2 w-full rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm font-bold text-white outline-none focus:border-[#fcd116]">
+          <option value="ireland">Ireland</option>
+          <option value="australia">Australia</option>
+          <option value="local">Venue local</option>
+        </select>
+        <div id="liveDataStatus" class="mt-3 rounded-lg border border-white/10 bg-[#07122d] px-3 py-2 text-xs font-semibold text-slate-400"></div>
+        <div id="fixturesView" class="mt-3 max-h-[78vh] space-y-2 overflow-y-auto pr-1"></div>
+      </section>
 
-    <section class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(300px,0.85fr)_minmax(360px,0.95fr)_minmax(720px,1.7fr)]">
-      <aside class="flex min-h-0 flex-col gap-4">
-        <section class="rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="draft">
+      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-3" data-mobile-panel="progress">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-bold text-white">Tournament Progress</h2>
+          <span class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">Live bracket</span>
+        </div>
+        <div id="stageTabs" class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-6"></div>
+        <div id="standingsView" class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2"></div>
+      </section>
+
+      <aside class="flex min-h-0 flex-col gap-3">
+        <section class="rounded-lg border border-white/10 bg-[#10265f] p-3" data-mobile-panel="draft">
           <div class="flex items-center justify-between gap-3">
             <h2 class="text-lg font-bold text-white">Draft Results</h2>
             <span id="draftCount" class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300"></span>
@@ -58,31 +66,6 @@
           </div>
         </section>
       </aside>
-
-      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="fixtures">
-        <div class="flex items-center justify-between gap-3">
-          <h2 class="text-lg font-bold text-white">Group Stage Fixtures</h2>
-          <span id="fixtureCount" class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300"></span>
-        </div>
-        <div id="todayMatchesView" class="mt-4"></div>
-        <label class="mt-3 block text-xs font-black uppercase tracking-wide text-[#fcd116]" for="timeZoneSelect">Match Times</label>
-        <select id="timeZoneSelect" class="mt-2 w-full rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm font-bold text-white outline-none focus:border-[#fcd116]">
-          <option value="ireland">Ireland</option>
-          <option value="australia">Australia</option>
-          <option value="local">Venue local</option>
-        </select>
-        <div id="liveDataStatus" class="mt-3 rounded-lg border border-white/10 bg-[#07122d] px-3 py-2 text-xs font-semibold text-slate-400"></div>
-        <div id="fixturesView" class="mt-4 max-h-[78vh] space-y-3 overflow-y-auto pr-1"></div>
-      </section>
-
-      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-4" data-mobile-panel="progress">
-        <div class="flex items-center justify-between gap-3">
-          <h2 class="text-lg font-bold text-white">Tournament Progress</h2>
-          <span class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">Live bracket</span>
-        </div>
-        <div id="stageTabs" class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-6"></div>
-        <div id="standingsView" class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2"></div>
-      </section>
     </section>
   </main>
 
@@ -2675,6 +2658,7 @@
         );
         if (groupMatch) {
           if (!shouldApplyLiveScore(item, groupMatch)) return;
+          groupMatch.liveStatus = item.status || item.match_status || item.phase || item.state || "";
           if (groupMatch.homeScore !== score.homeScore || groupMatch.awayScore !== score.awayScore) {
             groupMatch.homeScore = score.homeScore;
             groupMatch.awayScore = score.awayScore;
@@ -2717,6 +2701,7 @@
         if (match.date && match.date > today) {
           match.homeScore = null;
           match.awayScore = null;
+          match.liveStatus = "";
         }
       });
 
@@ -2993,45 +2978,30 @@
       const sortedFixtures = getChronologicalFixtures();
       const todayMatches = sortedFixtures.filter(match => match.date === today);
       const nextMatch = sortedFixtures.find(match => match.date > today);
-      const heading = todayMatches.length ? `${todayMatches.length} match${todayMatches.length === 1 ? "" : "es"} today` : "No matches today";
       const detail = todayMatches.length
-        ? todayMatches.map(match => compactMatchLine(match)).join("")
+        ? todayMatches.map(match => matchScoreCard(match, { featured: true })).join("")
         : nextMatch
-          ? `<p class="mt-2 text-sm text-slate-300">Next group-stage match: <span class="font-bold text-white">${formatMatchDate(nextMatch.date)}</span> at ${formatMatchTime(nextMatch)}, ${escapeHtml(nextMatch.venue)}.</p>`
-          : `<p class="mt-2 text-sm text-slate-300">The group stage is complete.</p>`;
+          ? matchScoreCard(nextMatch, { featured: true, label: "Next match" })
+          : `<p class="rounded-lg border border-white/10 bg-[#07122d] p-3 text-sm font-semibold text-slate-300">The group stage is complete.</p>`;
 
       els.todayMatchesView.innerHTML = `
-        <section class="rounded-lg border border-[#fcd116]/40 bg-[#07122d] p-3">
-          <div class="flex items-center justify-between gap-3">
-            <h3 class="text-sm font-black uppercase tracking-wide text-[#fcd116]">Today's Matches</h3>
-            <span class="rounded-md bg-[#c8102e] px-2 py-1 text-xs font-bold text-white">${escapeHtml(formatMatchDate(today))}</span>
+        <section>
+          <div class="mb-2 flex items-center justify-between gap-3">
+            <h3 class="text-xs font-black uppercase tracking-wide text-[#fcd116]">${todayMatches.length ? "Today" : "Up next"}</h3>
+            <span class="text-xs font-bold text-slate-300">${escapeHtml(formatMatchDate(today))}</span>
           </div>
-          <p class="mt-2 text-lg font-black text-white">${heading}</p>
-          <div class="mt-2 space-y-2">${detail}</div>
+          <div class="space-y-2">${detail}</div>
         </section>
       `;
     }
 
     function renderFixtures() {
       els.fixtureCount.textContent = `${appState.fixtures.length} matches`;
-      els.fixturesView.innerHTML = getChronologicalFixtures().map(match => `
-        <article class="rounded-lg border border-white/10 bg-[#07122d] p-3">
-          <div class="flex items-center justify-between gap-2">
-            <span class="rounded-md bg-[#009b3a] px-2 py-1 text-xs font-bold text-white">Group ${match.group}</span>
-            <span class="text-xs font-semibold text-[#fcd116]">Match ${match.matchNo}</span>
-          </div>
-          <div class="mt-2 grid grid-cols-1 gap-1 text-xs font-semibold text-slate-400">
-            <span>${formatMatchDate(match.date)} - ${formatMatchTime(match)}</span>
-            <span>${escapeHtml(match.venue)}</span>
-          </div>
-          <div class="mt-3 grid grid-cols-[minmax(0,1fr)_64px] items-center gap-2">
-            <span class="truncate text-sm font-semibold text-slate-100">${teamLabel(match.home, { showOwner: true })}</span>
-            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${match.homeScore ?? "-"}</span>
-            <span class="truncate text-sm font-semibold text-slate-100">${teamLabel(match.away, { showOwner: true })}</span>
-            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${match.awayScore ?? "-"}</span>
-          </div>
-        </article>
-      `).join("");
+      const today = getLocalDateKey(new Date());
+      els.fixturesView.innerHTML = getChronologicalFixtures()
+        .filter(match => match.date !== today)
+        .map(match => matchScoreCard(match))
+        .join("");
     }
 
     function renderStandings() {
@@ -3231,25 +3201,78 @@
       );
     }
 
-    function compactMatchLine(match) {
+    function matchScoreCard(match, options = {}) {
+      const isLive = isLiveStatus(match.liveStatus);
+      const featured = options.featured || isLive;
+      const borderClass = featured ? "border-[#fcd116]/50" : "border-white/10";
+      const bgClass = featured ? "bg-[#07122d]" : "bg-[#07122d]/75";
+      const label = options.label || (isLive ? "Live" : `Group ${match.group} - Match ${match.matchNo}`);
+
       return `
-        <div class="rounded-md border border-white/10 bg-[#10265f] p-2">
-          <div class="text-sm font-bold text-white">${teamLabel(match.home, { showOwner: true })} <span class="text-slate-500">v</span> ${teamLabel(match.away, { showOwner: true })}</div>
-          <div class="mt-1 text-xs font-semibold text-slate-400">${formatMatchTime(match)} - ${escapeHtml(match.venue)}</div>
+        <article class="rounded-lg border ${borderClass} ${bgClass} p-3">
+          <div class="mb-2 flex items-center justify-between gap-2 text-[11px] font-black uppercase tracking-wide">
+            <span class="${isLive ? "text-emerald-300" : "text-slate-400"}">${escapeHtml(label)}</span>
+            <span class="text-slate-400">${escapeHtml(matchStatusText(match))}</span>
+          </div>
+          <div class="grid grid-cols-[minmax(0,1fr)_72px_minmax(0,1fr)] items-center gap-2">
+            ${scoreTeamLine(match.home, "left")}
+            <div class="grid h-14 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-2xl font-black leading-none text-white">
+              ${scoreText(match)}
+            </div>
+            ${scoreTeamLine(match.away, "right")}
+          </div>
+          <div class="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[11px] font-semibold text-slate-400">
+            <span>${formatMatchDate(match.date)}</span>
+            <span>${formatMatchTime(match)}</span>
+            <span>${escapeHtml(match.venue)}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function scoreTeamLine(teamName, side) {
+      const owner = getTeamOwner(teamName);
+      return `
+        <div class="min-w-0 ${side === "right" ? "text-right" : "text-left"}">
+          <div class="flex min-w-0 items-center gap-1.5 ${side === "right" ? "justify-end" : ""}">
+            ${side === "right" ? `<span class="min-w-0 break-words text-sm font-black leading-tight text-white">${escapeHtml(teamName)}</span>${teamFlag(teamName)}` : `${teamFlag(teamName)}<span class="min-w-0 break-words text-sm font-black leading-tight text-white">${escapeHtml(teamName)}</span>`}
+          </div>
+          ${owner ? `<div class="mt-1 break-words text-[11px] font-bold leading-tight text-[#fcd116]">${escapeHtml(owner)}</div>` : ""}
         </div>
       `;
     }
 
+    function scoreText(match) {
+      if (Number.isInteger(match.homeScore) && Number.isInteger(match.awayScore)) {
+        return `${match.homeScore}-${match.awayScore}`;
+      }
+      return "-";
+    }
+
+    function matchStatusText(match) {
+      if (isLiveStatus(match.liveStatus)) return "Live";
+      if (match.liveStatus === "finished") return "FT";
+      return `Matchday ${match.matchday || 1}`;
+    }
+
+    function isLiveStatus(status) {
+      return ["live", "in_play", "in progress", "first half", "second half", "halftime", "half-time", "paused"].includes(String(status || "").toLowerCase());
+    }
+
     function teamLabel(teamName, options = {}) {
-      const code = FLAG_CODES[teamName];
-      const flag = code
-        ? `<img class="inline-block h-4 w-6 rounded-[2px] object-cover align-[-3px] shadow-sm" src="https://flagcdn.com/w40/${code}.png" srcset="https://flagcdn.com/w80/${code}.png 2x" alt="${escapeAttr(teamName)} flag" loading="lazy" />`
-        : `<span class="inline-grid h-4 w-6 place-items-center rounded-[2px] bg-slate-700 text-[8px] font-black text-slate-300 align-[-2px]">TBD</span>`;
+      const flag = teamFlag(teamName);
       const owner = options.showOwner ? getTeamOwner(teamName) : "";
       const ownerBadge = owner
         ? ` <span class="ml-1 inline-block max-w-24 truncate rounded bg-[#fcd116]/15 px-1.5 py-0.5 align-middle text-[10px] font-black uppercase tracking-wide text-[#fcd116]">${escapeHtml(owner)}</span>`
         : "";
       return `${flag} <span>${escapeHtml(teamName)}</span>${ownerBadge}`;
+    }
+
+    function teamFlag(teamName) {
+      const code = FLAG_CODES[teamName];
+      return code
+        ? `<img class="inline-block h-4 w-6 shrink-0 rounded-[2px] object-cover align-[-3px] shadow-sm" src="https://flagcdn.com/w40/${code}.png" srcset="https://flagcdn.com/w80/${code}.png 2x" alt="${escapeAttr(teamName)} flag" loading="lazy" />`
+        : `<span class="inline-grid h-4 w-6 shrink-0 place-items-center rounded-[2px] bg-slate-700 text-[8px] font-black text-slate-300 align-[-2px]">TBD</span>`;
     }
 
     function getTeamOwner(teamName) {

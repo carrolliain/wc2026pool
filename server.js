@@ -1,16 +1,44 @@
 ﻿const http = require("http");
 const fs = require("fs/promises");
+const fsSync = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
+const ROOT = __dirname;
+loadEnvFile(path.join(ROOT, ".env"));
+
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "127.0.0.1";
-const ROOT = __dirname;
 const STORE_FILE = path.join(ROOT, "pools.json");
 const ADMIN_PASSWORD = process.env.WORLDCUP_ADMIN_PASSWORD || "worldcup2026";
 const TOKEN_SECRET = process.env.WORLDCUP_TOKEN_SECRET || crypto.createHash("sha256").update(ADMIN_PASSWORD).digest("hex");
-const FREE_API_BASE = process.env.WORLDCUP_FREE_API_BASE || "https://worldcup26.ir";
+const FOOTBALL_DATA_API_BASE = process.env.FOOTBALL_DATA_API_BASE || "https://api.football-data.org/v4";
+const FOOTBALL_DATA_API_TOKEN = process.env.FOOTBALL_DATA_API_TOKEN || "";
+const FOOTBALL_DATA_COMPETITION = process.env.FOOTBALL_DATA_COMPETITION || "WC";
+const FOOTBALL_DATA_SEASON = process.env.FOOTBALL_DATA_SEASON || "2026";
 let liveCache = { fetchedAt: 0, payload: null };
+
+function loadEnvFile(filePath) {
+  if (!fsSync.existsSync(filePath)) return;
+
+  const lines = fsSync.readFileSync(filePath, "utf8").split(/\r?\n/);
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) return;
+
+    const separatorIndex = trimmed.indexOf("=");
+    if (separatorIndex === -1) return;
+
+    const key = trimmed.slice(0, separatorIndex).trim();
+    let value = trimmed.slice(separatorIndex + 1).trim();
+    if (!key || process.env[key] !== undefined) return;
+
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    process.env[key] = value;
+  });
+}
 
 function sendJson(res, status, payload) {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
@@ -106,17 +134,25 @@ async function handleApi(req, res, url) {
 async function getWorldCupLiveData() {
   if (liveCache.payload && Date.now() - liveCache.fetchedAt < 30000) return liveCache.payload;
 
-  const [gamesPayload, teamsPayload] = await Promise.all([
-    fetchFreeEndpoint("/get/games"),
-    fetchFreeEndpoint("/get/teams")
-  ]);
-  const normalized = normalizeFreeData(gamesPayload, teamsPayload);
+  if (!FOOTBALL_DATA_API_TOKEN) {
+    return {
+      configured: false,
+      provider: "football-data.org",
+      fetchedAt: null,
+      fixtures: [],
+      liveScores: [],
+      message: "Football-data.org live feed is not configured. Set FOOTBALL_DATA_API_TOKEN to enable live scores."
+    };
+  }
+
+  const matchesPayload = await fetchFootballDataEndpoint(`/competitions/${encodeURIComponent(FOOTBALL_DATA_COMPETITION)}/matches?season=${encodeURIComponent(FOOTBALL_DATA_SEASON)}`);
+  const normalized = normalizeFootballData(matchesPayload);
 
   liveCache = {
     fetchedAt: Date.now(),
     payload: {
       configured: true,
-      provider: "worldcup26.ir",
+      provider: "football-data.org",
       fetchedAt: new Date().toISOString(),
       fixtures: normalized.fixtures,
       liveScores: normalized.liveScores
@@ -125,23 +161,13 @@ async function getWorldCupLiveData() {
   return liveCache.payload;
 }
 
-async function fetchFreeEndpoint(endpoint) {
-  const response = await fetch(new URL(endpoint, FREE_API_BASE));
-  if (!response.ok) throw new Error(`Free World Cup feed failed: ${response.status}`);
+async function fetchFootballDataEndpoint(endpoint) {
+  const base = FOOTBALL_DATA_API_BASE.endsWith("/") ? FOOTBALL_DATA_API_BASE : `${FOOTBALL_DATA_API_BASE}/`;
+  const response = await fetch(new URL(endpoint.replace(/^\/+/, ""), base), {
+    headers: { "X-Auth-Token": FOOTBALL_DATA_API_TOKEN }
+  });
+  if (!response.ok) throw new Error(`Football-data.org feed failed: ${response.status}`);
   return response.json();
-}
-
-function unwrapList(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (Array.isArray(payload?.games)) return payload.games;
-  if (Array.isArray(payload?.matches)) return payload.matches;
-  if (Array.isArray(payload?.teams)) return payload.teams;
-  return [];
-}
-
-function teamName(team) {
-  return team?.name_en || team?.name || team?.team_name || team?.country || "";
 }
 
 function toNumber(value) {
@@ -150,50 +176,66 @@ function toNumber(value) {
   return Number.isFinite(number) ? number : null;
 }
 
-function normalizeGameStatus(game, score) {
-  const rawStatus = String(game.status || game.phase || game.state || "").toLowerCase();
-  const elapsed = String(game.time_elapsed || game.elapsed || game.match_time || "").toLowerCase();
-  const finished = String(game.finished ?? game.is_finished ?? game.completed ?? "").toLowerCase();
-
-  if (["true", "1", "yes"].includes(finished) || ["finished", "ft", "fulltime", "full-time"].some(value => rawStatus.includes(value) || elapsed.includes(value))) {
-    return "finished";
-  }
-
-  if (["notstarted", "not_started", "not started", "scheduled", "pending", "fixture"].some(value => rawStatus.includes(value) || elapsed.includes(value))) {
-    return "scheduled";
-  }
-
-  if (!score) return "scheduled";
-  if (rawStatus || elapsed) return "live";
-  return "updated";
-}
-function normalizeFreeData(gamesPayload, teamsPayload) {
-  const teams = unwrapList(teamsPayload);
-  const teamById = Object.fromEntries(teams.map(team => [String(team.id || team.team_id), team]));
-
-  const fixtures = unwrapList(gamesPayload);
+function normalizeFootballData(payload) {
+  const fixtures = Array.isArray(payload?.matches) ? payload.matches : [];
   const liveScores = fixtures
-    .map(game => {
-      const homeTeam = teamById[String(game.home_team_id)] || game.home_team || game.home || {};
-      const awayTeam = teamById[String(game.away_team_id)] || game.away_team || game.away || {};
-      const homeScore = toNumber(game.home_score ?? game.homeScore ?? game.score_home);
-      const awayScore = toNumber(game.away_score ?? game.awayScore ?? game.score_away);
-      const score = homeScore === null || awayScore === null ? "" : `${homeScore} - ${awayScore}`;
+    .map(match => {
+      const score = bestFootballDataScore(match.score);
+      const scoreText = score.homeScore === null || score.awayScore === null ? "" : `${score.homeScore} - ${score.awayScore}`;
 
       return {
-        id: game.id || game.match_id,
-        fixture_id: game.id || game.match_id,
-        status: normalizeGameStatus(game, score),
-        scheduled: game.local_date || game.date || game.kickoff,
-        location: game.stadium?.name_en || game.stadium_name || game.venue || "",
-        home: { name: teamName(homeTeam) || game.home_name || game.home_team_name || "" },
-        away: { name: teamName(awayTeam) || game.away_name || game.away_team_name || "" },
-        scores: { score, ft_score: score }
+        id: match.id,
+        fixture_id: match.id,
+        status: normalizeFootballDataStatus(match.status),
+        scheduled: match.utcDate,
+        location: match.venue || "",
+        home: { name: normalizeFootballDataTeamName(match.homeTeam?.name || match.homeTeam?.shortName || "") },
+        away: { name: normalizeFootballDataTeamName(match.awayTeam?.name || match.awayTeam?.shortName || "") },
+        scores: { score: scoreText, ft_score: scoreText }
       };
     })
     .filter(match => match.home.name && match.away.name && match.scores.score);
 
   return { fixtures, liveScores };
+}
+
+function bestFootballDataScore(score = {}) {
+  const fullTimeHome = toNumber(score.fullTime?.home);
+  const fullTimeAway = toNumber(score.fullTime?.away);
+  if (fullTimeHome !== null && fullTimeAway !== null) return { homeScore: fullTimeHome, awayScore: fullTimeAway };
+
+  const regularHome = toNumber(score.regularTime?.home);
+  const regularAway = toNumber(score.regularTime?.away);
+  if (regularHome !== null && regularAway !== null) return { homeScore: regularHome, awayScore: regularAway };
+
+  const halfTimeHome = toNumber(score.halfTime?.home);
+  const halfTimeAway = toNumber(score.halfTime?.away);
+  return { homeScore: halfTimeHome, awayScore: halfTimeAway };
+}
+
+function normalizeFootballDataStatus(status) {
+  const value = String(status || "").toUpperCase();
+  if (["IN_PLAY", "PAUSED"].includes(value)) return "live";
+  if (value === "FINISHED") return "finished";
+  if (["TIMED", "SCHEDULED", "POSTPONED", "SUSPENDED", "CANCELLED"].includes(value)) return "scheduled";
+  return value.toLowerCase();
+}
+
+function normalizeFootballDataTeamName(name) {
+  const aliases = {
+    "USA": "United States",
+    "United States of America": "United States",
+    "South Korea": "Korea Republic",
+    "Korea Republic": "Korea Republic",
+    "Turkey": "Türkiye",
+    "Cote d'Ivoire": "Côte d’Ivoire",
+    "Ivory Coast": "Côte d’Ivoire",
+    "Cape Verde": "Cabo Verde",
+    "DR Congo": "Congo DR",
+    "Democratic Republic of the Congo": "Congo DR",
+    "Curacao": "Curaçao"
+  };
+  return aliases[name] || name;
 }
 
 async function serveStatic(req, res, url) {

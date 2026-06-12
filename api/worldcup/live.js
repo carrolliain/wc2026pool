@@ -1,22 +1,15 @@
-﻿const FREE_API_BASE = process.env.WORLDCUP_FREE_API_BASE || "https://worldcup26.ir";
+const FOOTBALL_DATA_API_BASE = process.env.FOOTBALL_DATA_API_BASE || "https://api.football-data.org/v4";
+const FOOTBALL_DATA_API_TOKEN = process.env.FOOTBALL_DATA_API_TOKEN || "";
+const FOOTBALL_DATA_COMPETITION = process.env.FOOTBALL_DATA_COMPETITION || "WC";
+const FOOTBALL_DATA_SEASON = process.env.FOOTBALL_DATA_SEASON || "2026";
 
-async function fetchFreeEndpoint(endpoint) {
-  const response = await fetch(new URL(endpoint, FREE_API_BASE));
-  if (!response.ok) throw new Error(`Free World Cup feed failed: ${response.status}`);
+async function fetchFootballDataEndpoint(endpoint) {
+  const base = FOOTBALL_DATA_API_BASE.endsWith("/") ? FOOTBALL_DATA_API_BASE : `${FOOTBALL_DATA_API_BASE}/`;
+  const response = await fetch(new URL(endpoint.replace(/^\/+/, ""), base), {
+    headers: { "X-Auth-Token": FOOTBALL_DATA_API_TOKEN }
+  });
+  if (!response.ok) throw new Error(`Football-data.org feed failed: ${response.status}`);
   return response.json();
-}
-
-function unwrapList(payload) {
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (Array.isArray(payload?.games)) return payload.games;
-  if (Array.isArray(payload?.matches)) return payload.matches;
-  if (Array.isArray(payload?.teams)) return payload.teams;
-  return [];
-}
-
-function teamName(team) {
-  return team?.name_en || team?.name || team?.team_name || team?.country || "";
 }
 
 function toNumber(value) {
@@ -25,45 +18,22 @@ function toNumber(value) {
   return Number.isFinite(number) ? number : null;
 }
 
-function normalizeGameStatus(game, score) {
-  const rawStatus = String(game.status || game.phase || game.state || "").toLowerCase();
-  const elapsed = String(game.time_elapsed || game.elapsed || game.match_time || "").toLowerCase();
-  const finished = String(game.finished ?? game.is_finished ?? game.completed ?? "").toLowerCase();
-
-  if (["true", "1", "yes"].includes(finished) || ["finished", "ft", "fulltime", "full-time"].some(value => rawStatus.includes(value) || elapsed.includes(value))) {
-    return "finished";
-  }
-
-  if (["notstarted", "not_started", "not started", "scheduled", "pending", "fixture"].some(value => rawStatus.includes(value) || elapsed.includes(value))) {
-    return "scheduled";
-  }
-
-  if (!score) return "scheduled";
-  if (rawStatus || elapsed) return "live";
-  return "updated";
-}
-function normalizeFreeData(gamesPayload, teamsPayload) {
-  const teams = unwrapList(teamsPayload);
-  const teamById = Object.fromEntries(teams.map(team => [String(team.id || team.team_id), team]));
-
-  const fixtures = unwrapList(gamesPayload);
+function normalizeFootballData(payload) {
+  const fixtures = Array.isArray(payload?.matches) ? payload.matches : [];
   const liveScores = fixtures
-    .map(game => {
-      const homeTeam = teamById[String(game.home_team_id)] || game.home_team || game.home || {};
-      const awayTeam = teamById[String(game.away_team_id)] || game.away_team || game.away || {};
-      const homeScore = toNumber(game.home_score ?? game.homeScore ?? game.score_home);
-      const awayScore = toNumber(game.away_score ?? game.awayScore ?? game.score_away);
-      const score = homeScore === null || awayScore === null ? "" : `${homeScore} - ${awayScore}`;
+    .map(match => {
+      const score = bestFootballDataScore(match.score);
+      const scoreText = score.homeScore === null || score.awayScore === null ? "" : `${score.homeScore} - ${score.awayScore}`;
 
       return {
-        id: game.id || game.match_id,
-        fixture_id: game.id || game.match_id,
-        status: normalizeGameStatus(game, score),
-        scheduled: game.local_date || game.date || game.kickoff,
-        location: game.stadium?.name_en || game.stadium_name || game.venue || "",
-        home: { name: teamName(homeTeam) || game.home_name || game.home_team_name || "" },
-        away: { name: teamName(awayTeam) || game.away_name || game.away_team_name || "" },
-        scores: { score, ft_score: score }
+        id: match.id,
+        fixture_id: match.id,
+        status: normalizeFootballDataStatus(match.status),
+        scheduled: match.utcDate,
+        location: match.venue || "",
+        home: { name: normalizeFootballDataTeamName(match.homeTeam?.name || match.homeTeam?.shortName || "") },
+        away: { name: normalizeFootballDataTeamName(match.awayTeam?.name || match.awayTeam?.shortName || "") },
+        scores: { score: scoreText, ft_score: scoreText }
       };
     })
     .filter(match => match.home.name && match.away.name && match.scores.score);
@@ -71,21 +41,68 @@ function normalizeFreeData(gamesPayload, teamsPayload) {
   return { fixtures, liveScores };
 }
 
+function bestFootballDataScore(score = {}) {
+  const fullTimeHome = toNumber(score.fullTime?.home);
+  const fullTimeAway = toNumber(score.fullTime?.away);
+  if (fullTimeHome !== null && fullTimeAway !== null) return { homeScore: fullTimeHome, awayScore: fullTimeAway };
+
+  const regularHome = toNumber(score.regularTime?.home);
+  const regularAway = toNumber(score.regularTime?.away);
+  if (regularHome !== null && regularAway !== null) return { homeScore: regularHome, awayScore: regularAway };
+
+  const halfTimeHome = toNumber(score.halfTime?.home);
+  const halfTimeAway = toNumber(score.halfTime?.away);
+  return { homeScore: halfTimeHome, awayScore: halfTimeAway };
+}
+
+function normalizeFootballDataStatus(status) {
+  const value = String(status || "").toUpperCase();
+  if (["IN_PLAY", "PAUSED"].includes(value)) return "live";
+  if (value === "FINISHED") return "finished";
+  if (["TIMED", "SCHEDULED", "POSTPONED", "SUSPENDED", "CANCELLED"].includes(value)) return "scheduled";
+  return value.toLowerCase();
+}
+
+function normalizeFootballDataTeamName(name) {
+  const aliases = {
+    "USA": "United States",
+    "United States of America": "United States",
+    "South Korea": "Korea Republic",
+    "Korea Republic": "Korea Republic",
+    "Turkey": "Türkiye",
+    "Cote d'Ivoire": "Côte d’Ivoire",
+    "Ivory Coast": "Côte d’Ivoire",
+    "Cape Verde": "Cabo Verde",
+    "DR Congo": "Congo DR",
+    "Democratic Republic of the Congo": "Congo DR",
+    "Curacao": "Curaçao"
+  };
+  return aliases[name] || name;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  if (!FOOTBALL_DATA_API_TOKEN) {
+    return res.status(200).json({
+      configured: false,
+      provider: "football-data.org",
+      fetchedAt: null,
+      fixtures: [],
+      liveScores: [],
+      message: "Football-data.org live feed is not configured. Set FOOTBALL_DATA_API_TOKEN to enable live scores."
+    });
+  }
+
   try {
-    const [gamesPayload, teamsPayload] = await Promise.all([
-      fetchFreeEndpoint("/get/games"),
-      fetchFreeEndpoint("/get/teams")
-    ]);
-    const normalized = normalizeFreeData(gamesPayload, teamsPayload);
+    const matchesPayload = await fetchFootballDataEndpoint(`/competitions/${encodeURIComponent(FOOTBALL_DATA_COMPETITION)}/matches?season=${encodeURIComponent(FOOTBALL_DATA_SEASON)}`);
+    const normalized = normalizeFootballData(matchesPayload);
 
     return res.status(200).json({
       configured: true,
-      provider: "worldcup26.ir",
+      provider: "football-data.org",
       fetchedAt: new Date().toISOString(),
       fixtures: normalized.fixtures,
       liveScores: normalized.liveScores
@@ -93,12 +110,11 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     return res.status(502).json({
       configured: false,
-      provider: "worldcup26.ir",
+      provider: "football-data.org",
       fetchedAt: null,
       fixtures: [],
       liveScores: [],
-      message: "Free World Cup score feed is currently unavailable."
+      message: "Football-data.org score feed is currently unavailable."
     });
   }
 };
-
