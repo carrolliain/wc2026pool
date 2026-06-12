@@ -17,8 +17,65 @@
     };
   </script>
 </head>
-<body class="min-h-screen bg-[#07122d] text-slate-100" data-mobile-section="fixtures">
+<body class="min-h-screen bg-slate-100 text-slate-950" data-mobile-section="fixtures" data-theme="dark">
   <style>
+    body {
+      transition: background-color 160ms ease, color 160ms ease;
+    }
+
+    body[data-theme="dark"] {
+      background: #07122d;
+      color: #f8fafc;
+    }
+
+    body[data-theme="dark"] .bg-white,
+    body[data-theme="dark"] .bg-white\/95 {
+      background-color: #10265f !important;
+    }
+
+    body[data-theme="dark"] .bg-slate-50 {
+      background-color: #07122d !important;
+    }
+
+    body[data-theme="dark"] .bg-slate-100 {
+      background-color: #0b1f54 !important;
+    }
+
+    body[data-theme="dark"] .border-slate-100,
+    body[data-theme="dark"] .border-slate-200,
+    body[data-theme="dark"] .border-slate-300 {
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    body[data-theme="dark"] .text-slate-950,
+    body[data-theme="dark"] .text-slate-900,
+    body[data-theme="dark"] .text-slate-800 {
+      color: #f8fafc !important;
+    }
+
+    body[data-theme="dark"] .text-slate-700,
+    body[data-theme="dark"] .text-slate-600 {
+      color: #cbd5e1 !important;
+    }
+
+    body[data-theme="dark"] .text-slate-500 {
+      color: #94a3b8 !important;
+    }
+
+    body[data-theme="dark"] select {
+      background-color: #07122d !important;
+      color: #f8fafc !important;
+    }
+
+    body[data-theme="dark"] .theme-shell {
+      background-color: #10265f;
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    body[data-theme="dark"] .pool-owner-label {
+      color: #fcd116 !important;
+    }
+
     @media (max-width: 1023px) {
       [data-mobile-panel] { display: none; }
       body[data-mobile-section="fixtures"] [data-mobile-panel="fixtures"],
@@ -27,41 +84,49 @@
     }
   </style>
   <main class="mx-auto flex w-full max-w-[1800px] flex-col gap-3 px-2 pb-28 pt-2 sm:px-4 lg:px-5 lg:pb-4">
+    <div class="theme-shell flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm">
+      <span class="text-xs font-black uppercase tracking-wide text-[#fcd116]">FunFunFun Pool</span>
+      <label class="flex cursor-pointer items-center gap-2 text-xs font-black uppercase tracking-wide text-slate-600">
+        <span id="themeLabel">Dark</span>
+        <input id="themeToggle" class="peer sr-only" type="checkbox" />
+        <span class="relative h-6 w-11 rounded-full bg-slate-300 transition after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:transition peer-checked:bg-[#fcd116]"></span>
+      </label>
+    </div>
     <section class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(390px,1fr)_minmax(680px,1.55fr)_minmax(280px,0.75fr)]">
-      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-3" data-mobile-panel="fixtures">
+      <section class="min-h-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm" data-mobile-panel="fixtures">
         <div class="flex items-center justify-between gap-3">
-          <h2 class="text-lg font-bold text-white">Group Stage Fixtures</h2>
-          <span id="fixtureCount" class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300"></span>
+          <h2 class="text-lg font-bold text-slate-950">Group Stage Fixtures</h2>
+          <span id="fixtureCount" class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600"></span>
         </div>
-        <div id="todayMatchesView" class="sticky top-0 z-20 -mx-1 mt-3 bg-[#10265f] px-1 pb-2 pt-1"></div>
+        <div id="todayMatchesView" class="sticky top-0 z-20 -mx-1 mt-3 bg-white px-1 pb-2 pt-1"></div>
         <label class="mt-3 block text-xs font-black uppercase tracking-wide text-[#fcd116]" for="timeZoneSelect">Match Times</label>
-        <select id="timeZoneSelect" class="mt-2 w-full rounded-md border border-white/15 bg-[#07122d] px-3 py-2 text-sm font-bold text-white outline-none focus:border-[#fcd116]">
+        <select id="timeZoneSelect" class="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-bold text-slate-950 outline-none focus:border-[#fcd116]">
           <option value="ireland">Ireland</option>
           <option value="australia">Australia</option>
           <option value="local">Venue local</option>
         </select>
-        <div id="liveDataStatus" class="mt-3 rounded-lg border border-white/10 bg-[#07122d] px-3 py-2 text-xs font-semibold text-slate-400"></div>
+        <div id="liveDataStatus" class="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600"></div>
         <div id="fixturesView" class="mt-3 max-h-[78vh] space-y-2 overflow-y-auto pr-1"></div>
       </section>
 
-      <section class="min-h-0 rounded-lg border border-white/10 bg-[#10265f] p-3" data-mobile-panel="progress">
+      <section class="min-h-0 rounded-lg border border-slate-200 bg-white p-3 shadow-sm" data-mobile-panel="progress">
         <div class="flex items-center justify-between gap-3">
-          <h2 class="text-lg font-bold text-white">Tournament Progress</h2>
-          <span class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">Live bracket</span>
+          <h2 class="text-lg font-bold text-slate-950">Tournament Progress</h2>
+          <span class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">Live bracket</span>
         </div>
         <div id="stageTabs" class="mt-4 grid grid-cols-2 gap-2 xl:grid-cols-6"></div>
         <div id="standingsView" class="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2"></div>
       </section>
 
       <aside class="flex min-h-0 flex-col gap-3">
-        <section class="rounded-lg border border-white/10 bg-[#10265f] p-3" data-mobile-panel="draft">
+        <section class="rounded-lg border border-slate-200 bg-white p-3 shadow-sm" data-mobile-panel="draft">
           <div class="flex items-center justify-between gap-3">
-            <h2 class="text-lg font-bold text-white">Draft Results</h2>
-            <span id="draftCount" class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300"></span>
+            <h2 class="text-lg font-bold text-slate-950">Draft Results</h2>
+            <span id="draftCount" class="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600"></span>
           </div>
           <div id="assignmentsView" class="mt-4 space-y-3"></div>
-          <div class="mt-5 border-t border-slate-800 pt-4">
-            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-300">Leftovers</h3>
+          <div class="mt-5 border-t border-slate-200 pt-4">
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-500">Leftovers</h3>
             <div id="leftoversView" class="mt-3 flex flex-wrap gap-2"></div>
           </div>
         </section>
@@ -69,7 +134,7 @@
     </section>
   </main>
 
-  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-[#07122d]/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-2xl backdrop-blur lg:hidden" aria-label="Mobile sections">
+  <nav class="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 shadow-2xl backdrop-blur lg:hidden" aria-label="Mobile sections">
     <div class="mx-auto grid max-w-xl grid-cols-3 gap-2">
       <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="fixtures">Fixtures</button>
       <button class="mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide" type="button" data-section="progress">Progress</button>
@@ -81,6 +146,7 @@
     const GROUP_NAMES = "ABCDEFGHIJKL".split("");
     let currentPoolSlug = normalizePoolSlug(new URLSearchParams(window.location.search).get("pool") || "");
     let selectedTimeZoneMode = localStorage.getItem("worldCupTimeZoneMode") || "ireland";
+    let activeTheme = localStorage.getItem("worldCupTheme") || "dark";
     let activeMobileSection = "fixtures";
 
     function poolApiUrl() {
@@ -2460,6 +2526,8 @@
       liveDataStatus: document.getElementById("liveDataStatus"),
       stageTabs: document.getElementById("stageTabs"),
       standingsView: document.getElementById("standingsView"),
+      themeToggle: document.getElementById("themeToggle"),
+      themeLabel: document.getElementById("themeLabel"),
       shareUrl: document.getElementById("shareUrl"),
       copyLinkBtn: document.getElementById("copyLinkBtn"),
       copyStatus: document.getElementById("copyStatus")
@@ -2878,6 +2946,7 @@
     }
 
     function render() {
+      applyTheme(activeTheme);
       renderMobileSection();
       renderAssignments();
       renderTodayMatches();
@@ -2886,11 +2955,18 @@
       els.timeZoneSelect.value = selectedTimeZoneMode;
     }
 
+    function applyTheme(theme) {
+      activeTheme = theme === "light" ? "light" : "dark";
+      document.body.dataset.theme = activeTheme;
+      if (els.themeToggle) els.themeToggle.checked = activeTheme === "light";
+      if (els.themeLabel) els.themeLabel.textContent = activeTheme === "light" ? "Light" : "Dark";
+    }
+
     function renderMobileSection() {
       document.body.dataset.mobileSection = activeMobileSection;
       mobileTabs.forEach(button => {
         const active = button.dataset.section === activeMobileSection;
-        button.className = `mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide transition ${active ? "bg-[#fcd116] text-[#07122d]" : "bg-[#10265f] text-slate-300"}`;
+        button.className = `mobile-tab rounded-lg px-2 py-2 text-xs font-black uppercase tracking-wide transition ${active ? "bg-[#fcd116] text-slate-950" : "bg-slate-100 text-slate-600"}`;
       });
     }
 
@@ -2925,8 +3001,8 @@
       const unlocked = isControlUnlocked();
       els.playersList.innerHTML = appState.players.length
         ? appState.players.map(player => `
-          <li class="flex items-center justify-between gap-3 rounded-md border border-slate-800 bg-slate-950 px-3 py-2">
-            <span class="min-w-0 truncate text-sm font-semibold text-slate-100">${escapeHtml(player)}</span>
+          <li class="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+            <span class="min-w-0 truncate text-sm font-semibold text-slate-900">${escapeHtml(player)}</span>
             <button class="remove-player rounded-md border border-slate-700 px-2 py-1 text-xs font-bold text-slate-300 transition hover:border-rose-400 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-40" data-player="${escapeAttr(player)}" type="button" ${unlocked ? "" : "disabled"}>Remove</button>
           </li>
         `).join("")
@@ -2941,10 +3017,10 @@
         ? appState.players.map(player => {
           const teams = appState.assignments[player] || [];
           return `
-            <article class="rounded-lg border border-slate-800 bg-slate-950 p-3">
+            <article class="rounded-lg border border-slate-200 bg-slate-50 p-3">
               <div class="flex items-center justify-between gap-2">
-                <h3 class="min-w-0 truncate text-sm font-bold text-white">${escapeHtml(player)}</h3>
-                <span class="rounded-md bg-slate-800 px-2 py-1 text-xs font-semibold text-slate-300">${teams.length}</span>
+                <h3 class="min-w-0 truncate text-sm font-bold text-slate-950">${escapeHtml(player)}</h3>
+                <span class="rounded-md bg-white px-2 py-1 text-xs font-semibold text-slate-600">${teams.length}</span>
               </div>
               <div class="mt-3 space-y-2">
                 ${[1, 2, 3, 4].map(tier => renderTierGroup(teams, tier)).join("")}
@@ -2970,7 +3046,7 @@
     }
 
     function teamPill(team) {
-      return `<span class="rounded-md border border-white/10 bg-[#07122d] px-2 py-1 text-xs font-semibold text-slate-200">${teamLabel(team.name)} <span class="text-slate-500">T${team.tier}</span></span>`;
+      return `<span class="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800">${teamLabel(team.name)} <span class="text-slate-500">T${team.tier}</span></span>`;
     }
 
     function renderTodayMatches() {
@@ -2982,7 +3058,7 @@
         ? todayMatches.map(match => matchScoreCard(match, { featured: true })).join("")
         : nextMatch
           ? matchScoreCard(nextMatch, { featured: true, label: "Next match" })
-          : `<p class="rounded-lg border border-white/10 bg-[#07122d] p-3 text-sm font-semibold text-slate-300">The group stage is complete.</p>`;
+          : `<p class="rounded-lg border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-600">The group stage is complete.</p>`;
 
       els.todayMatchesView.innerHTML = `
         <section>
@@ -3015,7 +3091,7 @@
 
     function renderStageTabs() {
       els.stageTabs.innerHTML = STAGES.map(stage => `
-        <button class="stage-tab rounded-md border px-3 py-2 text-xs font-black uppercase tracking-wide transition ${activeStage === stage.id ? "border-[#fcd116] bg-[#fcd116] text-[#07122d]" : "border-white/10 bg-[#07122d] text-slate-300 hover:border-[#fcd116] hover:text-white"}" data-stage="${stage.id}" type="button">
+        <button class="stage-tab rounded-md border px-3 py-2 text-xs font-black uppercase tracking-wide transition ${activeStage === stage.id ? "border-[#fcd116] bg-[#fcd116] text-slate-950" : "border-slate-200 bg-white text-slate-600 hover:border-[#fcd116] hover:text-slate-950"}" data-stage="${stage.id}" type="button">
           ${escapeHtml(stage.label)}
         </button>
       `).join("");
@@ -3023,38 +3099,28 @@
 
     function renderGroupStage() {
       const standings = compileStandings();
-      els.standingsView.className = "mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2";
+      els.standingsView.className = "mt-3 grid grid-cols-1 gap-3 xl:grid-cols-2";
       els.standingsView.innerHTML = GROUP_NAMES.map(group => `
-        <article class="overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
-          <div class="flex items-center justify-between bg-slate-800 px-3 py-2">
-            <h3 class="text-sm font-extrabold text-white">Group ${group}</h3>
-            <span class="text-xs font-semibold text-slate-400">4 teams</span>
+        <article class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div class="flex items-center justify-between border-b border-[#fcd116]/30 bg-slate-50 px-3 py-2">
+            <h3 class="text-sm font-black uppercase tracking-wide text-slate-950">Group</h3>
+            <span class="text-sm font-black text-[#fcd116]">${group}</span>
+          </div>
+          <div class="grid grid-cols-[minmax(0,1fr)_34px_44px_44px] border-b border-slate-200 px-3 py-2 text-[10px] font-black uppercase tracking-wide text-slate-500">
+            <span>Team</span>
+            <span class="text-center">P</span>
+            <span class="text-center">GD</span>
+            <span class="text-right">Pts</span>
           </div>
           <div>
-            <table class="w-full table-fixed text-left text-xs">
-              <thead class="text-slate-500">
-                <tr class="border-b border-slate-800">
-                  <th class="w-8 px-2 py-2 font-bold">#</th>
-                  <th class="px-2 py-2 font-bold">Team</th>
-                  <th class="w-10 px-2 py-2 text-center font-bold">P</th>
-                  <th class="w-12 px-2 py-2 text-center font-bold">Pts</th>
-                  <th class="w-12 px-2 py-2 text-center font-bold">GD</th>
-                  <th class="w-24 px-2 py-2 font-bold">Owner</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${standings[group].map((row, index) => `
-                  <tr class="border-b border-slate-900 last:border-b-0">
-                    <td class="px-2 py-2 font-bold text-slate-500">${index + 1}</td>
-                    <td class="truncate px-2 py-2 font-bold ${row.owner ? "text-emerald-300" : "text-slate-100"}">${teamLabel(row.team)}</td>
-                    <td class="px-2 py-2 text-center text-slate-300">${row.played}</td>
-                    <td class="px-2 py-2 text-center font-bold text-white">${row.points}</td>
-                    <td class="px-2 py-2 text-center text-slate-300">${row.gd}</td>
-                    <td class="max-w-24 truncate px-2 py-2 ${row.owner ? "font-bold text-emerald-300" : "text-slate-600"}">${escapeHtml(row.owner || "Unowned")}</td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
+            ${standings[group].map((row, index) => `
+              <div class="grid grid-cols-[minmax(0,1fr)_34px_44px_44px] items-center border-b border-slate-100 bg-white px-3 py-2.5 last:border-b-0 ${index < 2 ? "border-l-2 border-l-[#fcd116]" : index === 2 ? "border-l-2 border-l-[#009b3a]" : "border-l-2 border-l-transparent"}">
+                ${standingsTeamCell(row)}
+                <span class="text-center text-xs font-bold text-slate-700">${row.played}</span>
+                <span class="text-center text-xs font-bold ${row.gd > 0 ? "text-emerald-700" : row.gd < 0 ? "text-rose-700" : "text-slate-600"}">${row.gd > 0 ? "+" : ""}${row.gd}</span>
+                <span class="text-right text-base font-black text-slate-950">${row.points}</span>
+              </div>
+            `).join("")}
           </div>
         </article>
       `).join("");
@@ -3068,9 +3134,9 @@
         : "mt-4 grid grid-cols-1 gap-3 xl:grid-cols-2";
 
       const championCard = stageId === "final" && champion?.winner
-        ? `<section class="rounded-lg border border-[#fcd116] bg-[#07122d] p-4">
+        ? `<section class="rounded-lg border border-[#fcd116] bg-white p-4 shadow-sm">
             <p class="text-xs font-black uppercase tracking-wide text-[#fcd116]">Champion</p>
-            <p class="mt-2 text-2xl font-black text-white">${teamLabel(champion.winner)}</p>
+            <p class="mt-2 text-2xl font-black text-slate-950">${teamLabel(champion.winner)}</p>
           </section>`
         : "";
 
@@ -3080,23 +3146,37 @@
     function knockoutCard(match) {
       const score = appState.knockouts[match.matchNo] || { homeScore: null, awayScore: null };
       const isComplete = Number.isInteger(score.homeScore) && Number.isInteger(score.awayScore) && score.homeScore !== score.awayScore;
+      const displayMatch = {
+        home: match.homeTeam || match.homeLabel,
+        away: match.awayTeam || match.awayLabel,
+        homeScore: score.homeScore,
+        awayScore: score.awayScore,
+        date: match.date,
+        timeET: match.timeET,
+        timeLocal: match.timeLocal,
+        venue: match.venue,
+        liveStatus: isComplete ? "finished" : "",
+        matchday: ""
+      };
       return `
-        <article class="rounded-lg border ${isComplete ? "border-[#fcd116]/60" : "border-white/10"} bg-[#07122d] p-3">
-          <div class="flex items-center justify-between gap-2">
-            <span class="rounded-md bg-[#c8102e] px-2 py-1 text-xs font-bold text-white">Match ${match.matchNo}</span>
-            <span class="text-xs font-semibold text-[#fcd116]">${escapeHtml(match.title)}</span>
+        <article class="rounded-lg border ${isComplete ? "border-[#fcd116]/60" : "border-slate-200"} bg-white p-3 shadow-sm">
+          <div class="mb-2 flex items-center justify-between gap-2 text-[11px] font-black uppercase tracking-wide">
+            <span class="text-slate-500">Match ${match.matchNo}</span>
+            <span class="text-[#c8102e]">${escapeHtml(match.title)}</span>
           </div>
-          <div class="mt-2 grid gap-1 text-xs font-semibold text-slate-400">
-            <span>${formatMatchDate(match.date)} - ${formatMatchTime(match)}</span>
+          <div class="grid grid-cols-[minmax(0,1fr)_72px_minmax(0,1fr)] items-center gap-2">
+            ${scoreTeamLine(displayMatch.home, "left")}
+            <div class="grid h-14 place-items-center rounded-md border border-[#fcd116]/60 bg-slate-100 px-2 text-center text-2xl font-black leading-none text-slate-950">
+              ${scoreText(displayMatch)}
+            </div>
+            ${scoreTeamLine(displayMatch.away, "right")}
+          </div>
+          <div class="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[11px] font-semibold text-slate-500">
+            <span>${formatMatchDate(match.date)}</span>
+            <span>${formatMatchTime(match)}</span>
             <span>${escapeHtml(match.venue)}</span>
           </div>
-          <div class="mt-3 grid grid-cols-[minmax(0,1fr)_64px] items-center gap-2">
-            <span class="truncate text-sm font-bold ${match.winner === match.homeTeam ? "text-emerald-300" : "text-white"}">${teamLabel(match.homeTeam || match.homeLabel, { showOwner: true })}</span>
-            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${score.homeScore ?? "-"}</span>
-            <span class="truncate text-sm font-bold ${match.winner === match.awayTeam ? "text-emerald-300" : "text-white"}">${teamLabel(match.awayTeam || match.awayLabel, { showOwner: true })}</span>
-            <span class="grid h-10 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-sm font-black text-white">${score.awayScore ?? "-"}</span>
-          </div>
-          <p class="mt-3 min-h-5 text-xs font-semibold ${score.homeScore === score.awayScore && Number.isInteger(score.homeScore) ? "text-rose-300" : "text-slate-500"}">
+          <p class="mt-3 min-h-5 text-xs font-semibold ${score.homeScore === score.awayScore && Number.isInteger(score.homeScore) ? "text-rose-700" : "text-slate-500"}">
             ${match.winner ? `Winner advances: ${teamLabel(match.winner)}` : "Waiting for official result."}
           </p>
         </article>
@@ -3204,24 +3284,23 @@
     function matchScoreCard(match, options = {}) {
       const isLive = isLiveStatus(match.liveStatus);
       const featured = options.featured || isLive;
-      const borderClass = featured ? "border-[#fcd116]/50" : "border-white/10";
-      const bgClass = featured ? "bg-[#07122d]" : "bg-[#07122d]/75";
+      const bgClass = featured ? "bg-white" : "bg-slate-50";
       const label = options.label || (isLive ? "Live" : `Group ${match.group} - Match ${match.matchNo}`);
 
       return `
-        <article class="rounded-lg border ${borderClass} ${bgClass} p-3">
+        <article class="rounded-lg border ${featured ? "border-[#fcd116]/60" : "border-slate-200"} ${bgClass} p-3 shadow-sm">
           <div class="mb-2 flex items-center justify-between gap-2 text-[11px] font-black uppercase tracking-wide">
-            <span class="${isLive ? "text-emerald-300" : "text-slate-400"}">${escapeHtml(label)}</span>
-            <span class="text-slate-400">${escapeHtml(matchStatusText(match))}</span>
+            <span class="${isLive ? "text-emerald-700" : "text-slate-500"}">${escapeHtml(label)}</span>
+            <span class="text-slate-500">${escapeHtml(matchStatusText(match))}</span>
           </div>
           <div class="grid grid-cols-[minmax(0,1fr)_72px_minmax(0,1fr)] items-center gap-2">
             ${scoreTeamLine(match.home, "left")}
-            <div class="grid h-14 place-items-center rounded-md border border-white/15 bg-[#10265f] px-2 text-center text-2xl font-black leading-none text-white">
+            <div class="grid h-14 place-items-center rounded-md border border-[#fcd116]/60 bg-slate-100 px-2 text-center text-2xl font-black leading-none text-slate-950">
               ${scoreText(match)}
             </div>
             ${scoreTeamLine(match.away, "right")}
           </div>
-          <div class="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[11px] font-semibold text-slate-400">
+          <div class="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[11px] font-semibold text-slate-500">
             <span>${formatMatchDate(match.date)}</span>
             <span>${formatMatchTime(match)}</span>
             <span>${escapeHtml(match.venue)}</span>
@@ -3235,9 +3314,9 @@
       return `
         <div class="min-w-0 ${side === "right" ? "text-right" : "text-left"}">
           <div class="flex min-w-0 items-center gap-1.5 ${side === "right" ? "justify-end" : ""}">
-            ${side === "right" ? `<span class="min-w-0 break-words text-sm font-black leading-tight text-white">${escapeHtml(teamName)}</span>${teamFlag(teamName)}` : `${teamFlag(teamName)}<span class="min-w-0 break-words text-sm font-black leading-tight text-white">${escapeHtml(teamName)}</span>`}
+            ${side === "right" ? `<span class="min-w-0 break-words text-sm font-black leading-tight text-slate-950">${escapeHtml(teamName)}</span>${teamFlag(teamName)}` : `${teamFlag(teamName)}<span class="min-w-0 break-words text-sm font-black leading-tight text-slate-950">${escapeHtml(teamName)}</span>`}
           </div>
-          ${owner ? `<div class="mt-1 break-words text-[11px] font-bold leading-tight text-[#fcd116]">${escapeHtml(owner)}</div>` : ""}
+          ${owner ? `<div class="pool-owner-label mt-1 break-words text-[11px] font-bold leading-tight text-[#c8102e]">${escapeHtml(owner)}</div>` : ""}
         </div>
       `;
     }
@@ -3257,6 +3336,18 @@
 
     function isLiveStatus(status) {
       return ["live", "in_play", "in progress", "first half", "second half", "halftime", "half-time", "paused"].includes(String(status || "").toLowerCase());
+    }
+
+    function standingsTeamCell(row) {
+      return `
+        <div class="min-w-0">
+          <div class="flex min-w-0 items-center gap-2">
+            ${teamFlag(row.team)}
+            <span class="min-w-0 break-words text-sm font-black leading-tight text-slate-950">${escapeHtml(row.team)}</span>
+          </div>
+          <div class="mt-0.5 break-words pl-8 text-[11px] font-bold leading-tight ${row.owner ? "pool-owner-label text-[#c8102e]" : "text-slate-500"}">${escapeHtml(row.owner || "Unowned")}</div>
+        </div>
+      `;
     }
 
     function teamLabel(teamName, options = {}) {
@@ -3356,6 +3447,16 @@
     els.timeZoneSelect.addEventListener("change", event => {
       selectedTimeZoneMode = event.target.value;
       localStorage.setItem("worldCupTimeZoneMode", selectedTimeZoneMode);
+      renderTodayMatches();
+      renderFixtures();
+      renderStandings();
+    });
+
+    els.themeToggle.addEventListener("change", event => {
+      const theme = event.target.checked ? "light" : "dark";
+      localStorage.setItem("worldCupTheme", theme);
+      applyTheme(theme);
+      renderMobileSection();
       renderTodayMatches();
       renderFixtures();
       renderStandings();
